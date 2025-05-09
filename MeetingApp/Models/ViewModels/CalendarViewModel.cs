@@ -1,20 +1,19 @@
-﻿using CommunityToolkit.Maui.Core;
+﻿// Models/ViewModels/CalendarViewModel.cs
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using MeetingApp.Services;
 using MeetingApp.Pages;
-
-
+using System.Windows.Input;
+using MeetingApp.Models;
 
 namespace MeetingApp.Models.ViewModels
 {
     public partial class CalendarViewModel : ObservableObject
     {
-        
         private readonly MeetingService _meetingService;
-
 
         [ObservableProperty]
         private DateTime _selectedDate = DateTime.Today;
@@ -26,10 +25,11 @@ namespace MeetingApp.Models.ViewModels
         private DateTime _currentWeekStart = DateTime.Today.StartOfWeek(DayOfWeek.Monday);
 
         [ObservableProperty]
-        private ObservableCollection<DayViewModel> _days = new();
+        private ObservableCollection<DayModel> _days = new();
 
         [ObservableProperty]
         private string _weekRange = string.Empty;
+
         public CalendarViewModel(MeetingService meetingService)
         {
             _meetingService = meetingService;
@@ -59,19 +59,31 @@ namespace MeetingApp.Models.ViewModels
 
         private void UpdateCalendar()
         {
-            var newDays = new ObservableCollection<DayViewModel>();
-
+            var newDays = new ObservableCollection<DayModel>();
             Days.Clear();
+
             for (int i = 0; i < 7; i++)
             {
                 var day = CurrentWeekStart.AddDays(i);
-                var dayViewModel = new DayViewModel
+
+                var dayMeetings = Meetings
+                    .Where(m => m.Date.Date == day.Date)
+                    .Select(m => new MeetingDisplay
+                    {
+                        Meeting = m,
+                        GridRow = (int)((m.StartTime.TotalMinutes - 480) / 30),
+                        RowSpan = (int)Math.Ceiling((m.EndTime - m.StartTime).TotalMinutes / 30),
+                        ColorHex = m.ColorHex ?? "#FF6600",
+                        Title = m.Title ?? ""
+                    });
+
+                newDays.Add(new DayModel
                 {
                     Date = day,
-                    Meetings = new ObservableCollection<Meeting>(Meetings.Where(m => m.Date.Date == day.Date))
-                };
-                newDays.Add(dayViewModel);
+                    Meetings = new ObservableCollection<MeetingDisplay>(dayMeetings)
+                });
             }
+
             Days = newDays;
             WeekRange = $"{CurrentWeekStart:dd.} - {CurrentWeekStart.AddDays(6):dd. MM. yyyy}";
         }
@@ -93,27 +105,7 @@ namespace MeetingApp.Models.ViewModels
         [RelayCommand]
         public async Task OnAddMeetingClicked()
         {
-            // Navigace na stránku AddMeetingPage
             await Shell.Current.GoToAsync(nameof(AddMeetingPage));
         }
-
-
-        
     }
-
-
-    //public class DayViewModel
-    //{
-    //    public DateTime Date { get; set; }
-    //    public ObservableCollection<Meeting> Meetings { get; set; } = new();
-    //}
-
-    //public static class DateTimeExtensions
-    //{
-    //    public static DateTime StartOfWeek(this DateTime dt, DayOfWeek startOfWeek)
-    //    {
-    //        int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
-    //        return dt.AddDays(-1 * diff).Date;
-    //    }
-    //}
 }
