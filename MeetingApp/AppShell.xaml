@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="MeetingApp.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:MeetingApp"
+    xmlns:pages="clr-namespace:MeetingApp.Pages"
+    Shell.FlyoutBehavior="Flyout"
+    Title="MeetingApp">
+
+
+    <TabBar>
+        <ShellContent 
+        Title="Home"
+        Route="CalendarPage" 
+        ContentTemplate="{DataTemplate pages:CalendarPage}" />
+
+        <ShellContent 
+        Title="Test"
+        Route="TestPage" 
+        ContentTemplate="{DataTemplate pages:TestPage}" />
+    </TabBar>
+
+
+</Shell>

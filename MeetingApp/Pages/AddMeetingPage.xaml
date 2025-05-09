@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:MeetingApp.ViewModels"
+    x:Class="MeetingApp.Pages.AddMeetingPage"
+    Title="Přidat schůzku">
+
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10">
+            <Label Text="Přidat schůzku" FontAttributes="Bold" FontSize="20" />
+
+            <Entry Placeholder="Název schůzky" Text="{Binding Title}" />
+            <DatePicker Date="{Binding SelectedDate}" />
+            <TimePicker Time="{Binding SelectedTime}" />
+
+            <HorizontalStackLayout Spacing="10">
+                <CheckBox IsChecked="{Binding IsRegular}" />
+                <Label Text="Pravidelná schůzka?" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Label Text="Účastníci:" FontAttributes="Bold"/>
+            <CollectionView ItemsSource="{Binding Participants}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Orientation="Vertical" Padding="5">
+                            <Entry Placeholder="Jméno" Text="{Binding Name}" />
+                            <Entry Placeholder="Email" Text="{Binding Email}" Keyboard="Email" />
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Button Text="Přidat účastníka" Command="{Binding AddParticipantCommand}" />
+            <Button Text="Uložit schůzku" Command="{Binding AddMeetingCommand}" />
+            <Button Text="Zpět" Command="{Binding GoBackCommand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

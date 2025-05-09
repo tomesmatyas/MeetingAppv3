@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:MeetingApp.Models.ViewModels"
+    x:Class="MeetingApp.Pages.TestPage"
+    x:Name="TestPageInstance"
+    Title="Test API Schůzky"
+    xmlns:model="clr-namespace:MeetingApp.Models">
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Padding="20" Spacing="15">
+                <Label Text="Test API Schůzky" 
+               FontAttributes="Bold" 
+               FontSize="24"
+               HorizontalOptions="Center"/>
+
+                <!-- Formulář pro přidání nové schůzky -->
+                <Frame BorderColor="Gray" CornerRadius="10" Padding="10">
+                    <StackLayout Spacing="10">
+                        <Label Text="Nová schůzka:" FontAttributes="Bold"/>
+                        <Entry Placeholder="Zadejte název schůzky"
+                   Text="{Binding NewMeetingTitle}" />
+                        <DatePicker Date="{Binding NewMeetingDate}" />
+                        <StackLayout Orientation="Horizontal" VerticalOptions="Center">
+                            <Label Text="Pravidelná schůzka:" VerticalOptions="Center" />
+                            <Switch IsToggled="{Binding NewMeetingIsRegular}" />
+                        </StackLayout>
+                        <Button Text="Přidat schůzku" 
+                    Command="{Binding AddMeetingCommand}" />
+                    </StackLayout>
+                </Frame>
+
+                <!-- Tlačítko pro načtení schůzek -->
+                <Button Text="Načíst schůzky" 
+                Command="{Binding LoadMeetingsCommand}" />
+
+                <!-- Seznam schůzek -->
+                <CollectionView ItemsSource="{Binding Meetings}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:Meeting">
+                            <Frame BorderColor="DarkGray" CornerRadius="10" Padding="10" Margin="0,5">
+                                <StackLayout>
+                                    <Label Text="{Binding Title}" FontSize="18"/>
+                                    <Label Text="{Binding Date, StringFormat='dd.MM.yyyy HH:mm'}" FontSize="14"/>
+                                    <Label Text="{Binding IsRegular, StringFormat='Pravidelná: {0}'}" FontSize="14"/>
+                                     <!--Tlačítko pro smazání. Command se naváže přes x:Reference na BindingContext stránky 
+                                    -->
+                                    <Button Text="Smazat" 
+                          Command="{Binding Source={x:Reference TestPageInstance}, Path=BindingContext.DeleteMeetingCommand}"
+                          CommandParameter="{Binding .}" 
+                          FontSize="12" />
+                                </StackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

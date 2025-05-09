@@ -1,0 +1,110 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MeetingApp.Pages.CalendarPage"
+             xmlns:vm="clr-namespace:MeetingApp.Models.ViewModels">
+    
+    
+
+    <Grid Padding="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Navigační šipky a zobrazení týdne -->
+        <Button Text="◀" Command="{Binding PreviousWeekClickedCommand}" Grid.Row="0" Grid.Column="0" />
+        <Label Text="{Binding WeekRange}"
+               HorizontalOptions="Center"
+               FontSize="Large"
+               Grid.Row="0" Grid.Column="1" />
+        <Button Text="▶" Command="{Binding NextWeekClickedCommand}" Grid.Row="0" Grid.Column="2" />
+
+        <!-- Kalendářní tabulka -->
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Hlavička s dny -->
+            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Days[0].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center"/>
+            <Label Grid.Row="0" Grid.Column="2" Text="{Binding Days[1].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center"/>
+            <Label Grid.Row="0" Grid.Column="3" Text="{Binding Days[2].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center"/>
+            <Label Grid.Row="0" Grid.Column="4" Text="{Binding Days[3].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center"/>
+            <Label Grid.Row="0" Grid.Column="5" Text="{Binding Days[4].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center"/>
+            <Label Grid.Row="0" Grid.Column="6" Text="{Binding Days[5].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center"/>
+            <Label Grid.Row="0" Grid.Column="7" Text="{Binding Days[6].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center"/>
+
+            <!-- Časová osa -->
+            <StackLayout Grid.Row="1" Grid.Column="0" Padding="5" Spacing="100">
+                <Label Text="8:00"  />
+                <Label Text="10:00" />
+                <Label Text="12:00" />
+                <Label Text="14:00" />
+                <Label Text="16:00" />
+                <Label Text="18:00" />
+            </StackLayout>
+
+            <!-- Schůzky -->
+            <CollectionView Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="7" ItemsSource="{Binding Days}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="1" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <CollectionView ItemsSource="{Binding Meetings}">
+                                <CollectionView.ItemsLayout>
+                                    <VerticalStackLayout />
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Frame BorderColor="Orange" Padding="5" Margin="2">
+                                            <Label Text="{Binding Title}" FontSize="Small" />
+                                        </Frame>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+
+        <!-- Tlačítko pro přidání nové schůzky -->
+        <Button Text="+" Command="{Binding AddMeetingClickedCommand}"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                FontSize="Large"
+                BackgroundColor="Orange"
+                TextColor="White"
+                WidthRequest="50"
+                HeightRequest="50"
+                CornerRadius="25"
+                Grid.Row="4" Grid.Column="2" />
+
+        <!--<ContentPage.ToolbarItems>
+            <ToolbarItem Text="{OnPlatform Default='+ Add Product', iOS='+'}"
+                     Command="{Binding SetOperatingProductCommand}"/>
+        </ContentPage.ToolbarItems>-->
+    </Grid>
+</ContentPage>
