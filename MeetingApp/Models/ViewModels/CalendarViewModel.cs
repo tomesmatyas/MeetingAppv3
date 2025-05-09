@@ -84,7 +84,9 @@ public partial class CalendarViewModel : ObservableObject
                     GridRow = gridRow,
                     RowSpan = rowSpan,
                     ColorHex = string.IsNullOrEmpty(meeting.ColorHex) ? "#FF6600" : meeting.ColorHex
+
                 });
+
             }
 
             newDays.Add(new DayModel
@@ -97,6 +99,7 @@ public partial class CalendarViewModel : ObservableObject
 
         Days = newDays;
         WeekRange = $"{CurrentWeekStart:dd.} - {CurrentWeekStart.AddDays(6):dd. MM. yyyy}";
+
     }
 
     [RelayCommand]

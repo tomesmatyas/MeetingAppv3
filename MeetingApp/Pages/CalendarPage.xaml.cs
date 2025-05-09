@@ -1,5 +1,6 @@
 using MeetingApp.Models;
 using MeetingApp.Models.ViewModels;
+using System.Diagnostics;
 
 namespace MeetingApp.Pages;
 
@@ -49,6 +50,7 @@ public partial class CalendarPage : ContentPage
                     }
                 }
             };
+            Debug.WriteLine($"GridRow: {meeting.GridRow}, RowSpan: {meeting.RowSpan}, Title: {meeting.Title}");
 
             var tap = new TapGestureRecognizer
             {
