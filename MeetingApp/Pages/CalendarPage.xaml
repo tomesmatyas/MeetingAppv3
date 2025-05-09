@@ -63,160 +63,211 @@
                 
 
                 <!-- Schůzky ve dnech -->
-                <ContentView Grid.Row="1" Grid.Column="1">
-                    <ContentView.BindingContext>
-                        <Binding Path="Days[0]" />
-                    </ContentView.BindingContext>
-                    <CollectionView ItemsSource="{Binding Meetings}" ItemsLayout="VerticalList">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BackgroundColor="{Binding ColorHex}" Padding="4" Margin="1"
-                                       Grid.Row="{Binding GridRow}" Grid.RowSpan="{Binding RowSpan}" Grid.ColumnSpan="1">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=EditMeetingCommand}" CommandParameter="{Binding Meeting}" />
-                                    </Border.GestureRecognizers>
-                                    <VerticalStackLayout>
-                                        <Label Text="{Binding Title}" FontSize="Small" TextColor="White" />
-                                        <Label Text="{Binding TimeRange}" FontSize="10" TextColor="White" />
-                                        <Label Text="{Binding ParticipantInfo}" FontSize="10" TextColor="White" />
-                                    </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </ContentView>
-                <ContentView Grid.Row="1" Grid.Column="2">
-                    <ContentView.BindingContext>
-                        <Binding Path="Days[1]" />
-                    </ContentView.BindingContext>
-                    <CollectionView ItemsSource="{Binding Meetings}" ItemsLayout="VerticalList">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BackgroundColor="{Binding ColorHex}" Padding="4" Margin="1"
-                       Grid.Row="{Binding GridRow}" Grid.RowSpan="{Binding RowSpan}" Grid.ColumnSpan="1">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=EditMeetingCommand}" CommandParameter="{Binding Meeting}" />
-                                    </Border.GestureRecognizers>
-                                    <VerticalStackLayout>
-                                        <Label Text="{Binding Title}" FontSize="Small" TextColor="White" />
-                                        <Label Text="{Binding TimeRange}" FontSize="10" TextColor="White" />
-                                        <Label Text="{Binding ParticipantInfo}" FontSize="10" TextColor="White" />
-                                    </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </ContentView>
-                <ContentView Grid.Row="1" Grid.Column="3" >
-                    <ContentView.BindingContext>
-                        <Binding Path="Days[2]" />
-                    </ContentView.BindingContext>
-                    <CollectionView ItemsSource="{Binding Meetings}" ItemsLayout="VerticalList">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BackgroundColor="{Binding ColorHex}" Padding="4" Margin="1"
-                       Grid.Row="{Binding GridRow}" Grid.RowSpan="{Binding RowSpan}" Grid.ColumnSpan="1">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=EditMeetingCommand}" CommandParameter="{Binding Meeting}" />
-                                    </Border.GestureRecognizers>
-                                    <VerticalStackLayout>
-                                        <Label Text="{Binding Title}" FontSize="Small" TextColor="White" />
-                                        <Label Text="{Binding TimeRange}" FontSize="10" TextColor="White" />
-                                        <Label Text="{Binding ParticipantInfo}" FontSize="10" TextColor="White" />
-                                    </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </ContentView>
-                <ContentView Grid.Row="1" Grid.Column="4">
-                    <ContentView.BindingContext>
-                        <Binding Path="Days[3]" />
-                    </ContentView.BindingContext>
-                    <CollectionView ItemsSource="{Binding Meetings}" ItemsLayout="VerticalList">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BackgroundColor="{Binding ColorHex}" Padding="4" Margin="1"
-                       Grid.Row="{Binding GridRow}" Grid.RowSpan="{Binding RowSpan}" Grid.ColumnSpan="1">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=EditMeetingCommand}" CommandParameter="{Binding Meeting}" />
-                                    </Border.GestureRecognizers>
-                                    <VerticalStackLayout>
-                                        <Label Text="{Binding Title}" FontSize="Small" TextColor="White" />
-                                        <Label Text="{Binding TimeRange}" FontSize="10" TextColor="White" />
-                                        <Label Text="{Binding ParticipantInfo}" FontSize="10" TextColor="White" />
-                                    </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </ContentView>
-                <ContentView Grid.Row="1" Grid.Column="5" >
-                    <ContentView.BindingContext>
-                        <Binding Path="Days[4]" />
-                    </ContentView.BindingContext>
-                    <CollectionView ItemsSource="{Binding Meetings}" ItemsLayout="VerticalList">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BackgroundColor="{Binding ColorHex}" Padding="4" Margin="1"
-                       Grid.Row="{Binding GridRow}" Grid.RowSpan="{Binding RowSpan}" Grid.ColumnSpan="1">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=EditMeetingCommand}" CommandParameter="{Binding Meeting}" />
-                                    </Border.GestureRecognizers>
-                                    <VerticalStackLayout>
-                                        <Label Text="{Binding Title}" FontSize="Small" TextColor="White" />
-                                        <Label Text="{Binding TimeRange}" FontSize="10" TextColor="White" />
-                                        <Label Text="{Binding ParticipantInfo}" FontSize="10" TextColor="White" />
-                                    </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </ContentView>
-                <ContentView Grid.Row="1" Grid.Column="6">
-                    <ContentView.BindingContext>
-                        <Binding Path="Days[5]" />
-                    </ContentView.BindingContext>
-                    <CollectionView ItemsSource="{Binding Meetings}" ItemsLayout="VerticalList">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BackgroundColor="{Binding ColorHex}" Padding="4" Margin="1"
-                       Grid.Row="{Binding GridRow}" Grid.RowSpan="{Binding RowSpan}" Grid.ColumnSpan="1">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=EditMeetingCommand}" CommandParameter="{Binding Meeting}" />
-                                    </Border.GestureRecognizers>
-                                    <VerticalStackLayout>
-                                        <Label Text="{Binding Title}" FontSize="Small" TextColor="White" />
-                                        <Label Text="{Binding TimeRange}" FontSize="10" TextColor="White" />
-                                        <Label Text="{Binding ParticipantInfo}" FontSize="10" TextColor="White" />
-                                    </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </ContentView>
-                <ContentView Grid.Row="1" Grid.Column="7" >
-                    <ContentView.BindingContext>
-                        <Binding Path="Days[6]" />
-                    </ContentView.BindingContext>
-                    <CollectionView ItemsSource="{Binding Meetings}" ItemsLayout="VerticalList">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BackgroundColor="{Binding ColorHex}" Padding="4" Margin="1"
-                       Grid.Row="{Binding GridRow}" Grid.RowSpan="{Binding RowSpan}" Grid.ColumnSpan="1">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=EditMeetingCommand}" CommandParameter="{Binding Meeting}" />
-                                    </Border.GestureRecognizers>
-                                    <VerticalStackLayout>
-                                        <Label Text="{Binding Title}" FontSize="Small" TextColor="White" />
-                                        <Label Text="{Binding TimeRange}" FontSize="10" TextColor="White" />
-                                        <Label Text="{Binding ParticipantInfo}" FontSize="10" TextColor="White" />
-                                    </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </ContentView>
+                <!-- Den 1 – Pondělí -->
+                <Grid x:Name="DayGrid0" Grid.Row="1" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <!-- 8:00 až 19:30 po 30min -->
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
+                </Grid>
+
+                <!-- Den 2 až 7 -->
+                <Grid x:Name="DayGrid1" Grid.Row="1" Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
+                </Grid>
+
+                <Grid x:Name="DayGrid2" Grid.Row="1" Grid.Column="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
+                </Grid>
+
+                <Grid x:Name="DayGrid3" Grid.Row="1" Grid.Column="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
+                </Grid>
+
+                <Grid x:Name="DayGrid4" Grid.Row="1" Grid.Column="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
+                </Grid>
+
+                <Grid x:Name="DayGrid5" Grid.Row="1" Grid.Column="6">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
+                </Grid>
+
+                <Grid x:Name="DayGrid6" Grid.Row="1" Grid.Column="7">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
+                </Grid>
             </Grid>
 
             <Button Text="+" Command="{Binding AddMeetingClickedCommand}"

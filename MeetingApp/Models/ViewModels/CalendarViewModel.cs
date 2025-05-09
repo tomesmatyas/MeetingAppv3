@@ -59,6 +59,10 @@ public partial class CalendarViewModel : ObservableObject
         var newDays = new ObservableCollection<DayModel>();
         Days.Clear();
 
+        int baseHour = 8;         // začátek dne (8:00)
+        int blockMinutes = 30;    // 1 GridRow = 30 minut
+        int baseMinutes = baseHour * 60;
+
         for (int i = 0; i < 7; i++)
         {
             var day = CurrentWeekStart.AddDays(i);
@@ -70,11 +74,8 @@ public partial class CalendarViewModel : ObservableObject
                 var start = meeting.StartTime;
                 var end = meeting.EndTime;
 
-                int baseHour = 8;
-                int rowsPerHour = 2;
-
-                int gridRow = Math.Max(0, (int)((start.TotalHours - baseHour) * rowsPerHour));
-                int rowSpan = Math.Max(1, (int)((end - start).TotalHours * rowsPerHour));
+                int gridRow = Math.Max(0, (int)((start.TotalMinutes - baseMinutes) / blockMinutes));
+                int rowSpan = Math.Max(1, (int)((end - start).TotalMinutes / blockMinutes));
 
                 displays.Add(new MeetingDisplay
                 {
@@ -82,9 +83,7 @@ public partial class CalendarViewModel : ObservableObject
                     Title = meeting.Title,
                     GridRow = gridRow,
                     RowSpan = rowSpan,
-                    ColorHex = string.IsNullOrEmpty(meeting.ColorHex) ? "#FF6600" : meeting.ColorHex,
-                    TimeRange = $"{start:hh\\:mm}–{end:hh\\:mm}",
-                    ParticipantInfo = meeting.Participants?.Count.ToString() ?? "0"
+                    ColorHex = string.IsNullOrEmpty(meeting.ColorHex) ? "#FF6600" : meeting.ColorHex
                 });
             }
 
