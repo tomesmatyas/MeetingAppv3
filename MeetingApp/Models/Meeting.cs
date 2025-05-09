@@ -8,8 +8,8 @@ public class Meeting
     public string? Title { get; set; }
     public DateTime Date { get; set; }
     public bool IsRegular { get; set; } // Pravidelná/nepravidelná schůzka
-    public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan EndTime { get; set; }
     public string? ColorHex { get; set; }
     public List<Participant> Participants { get; set; } = new();
 }
@@ -35,7 +35,7 @@ public class MeetingDisplay
 public class DayModel
 {
     public DateTime Date { get; set; }
-    public ObservableCollection<Meeting> Meetings { get; set; } = new();
+    public ObservableCollection<MeetingDisplay> Meetings { get; set; } = new();
 }
 
 public static class DateTimeExtensions
