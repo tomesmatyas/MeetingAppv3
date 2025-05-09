@@ -31,9 +31,9 @@ public class MeetingDisplay
     public int GridRow { get; set; }
     public int RowSpan { get; set; }
     public string ColorHex { get; set; } = "#FF6600";
-    public string TimeRange => $"{Meeting.StartTime:hh\\:mm}–{Meeting.EndTime:hh\\:mm}";
-    public int ParticipantCount => Meeting.Participants?.Count ?? 0;
-    
+    public string TimeRange { get; set; } = "";
+    public string ParticipantInfo { get; set; } = "";
+
 }
 public class DayModel
 {

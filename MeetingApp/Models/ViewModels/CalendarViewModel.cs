@@ -1,112 +1,131 @@
-﻿// Models/ViewModels/CalendarViewModel.cs
-using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MeetingApp.Models;
+using MeetingApp.Pages;
+using MeetingApp.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using MeetingApp.Services;
-using MeetingApp.Pages;
-using System.Windows.Input;
-using MeetingApp.Models;
 
-namespace MeetingApp.Models.ViewModels
+namespace MeetingApp.Models.ViewModels;
+
+public partial class CalendarViewModel : ObservableObject
 {
-    public partial class CalendarViewModel : ObservableObject
+    private readonly MeetingService _meetingService;
+
+    [ObservableProperty]
+    private DateTime _selectedDate = DateTime.Today;
+
+    [ObservableProperty]
+    private ObservableCollection<Meeting> _meetings = new();
+
+    [ObservableProperty]
+    private DateTime _currentWeekStart = DateTime.Today.StartOfWeek(DayOfWeek.Monday);
+
+    [ObservableProperty]
+    private ObservableCollection<DayModel> _days = new();
+
+    [ObservableProperty]
+    private string _weekRange = string.Empty;
+
+    public CalendarViewModel(MeetingService meetingService)
     {
-        private readonly MeetingService _meetingService;
+        _meetingService = meetingService;
+        LoadMeetings();
+        UpdateCalendar();
+    }
 
-        [ObservableProperty]
-        private DateTime _selectedDate = DateTime.Today;
-
-        [ObservableProperty]
-        private ObservableCollection<Meeting> _meetings = new();
-
-        [ObservableProperty]
-        private DateTime _currentWeekStart = DateTime.Today.StartOfWeek(DayOfWeek.Monday);
-
-        [ObservableProperty]
-        private ObservableCollection<DayModel> _days = new();
-
-        [ObservableProperty]
-        private string _weekRange = string.Empty;
-
-        public CalendarViewModel(MeetingService meetingService)
+    private async void LoadMeetings()
+    {
+        try
         {
-            _meetingService = meetingService;
-            LoadMeetings();
-            UpdateCalendar();
-        }
-
-        private async void LoadMeetings()
-        {
-            try
+            var meetings = await _meetingService.GetMeetingsAsync();
+            if (meetings != null)
             {
-                var meetings = await _meetingService.GetMeetingsAsync();
-                if (meetings != null)
+                Meetings.Clear();
+                foreach (var meeting in meetings)
                 {
-                    Meetings.Clear();
-                    foreach (var meeting in meetings)
-                    {
-                        Meetings.Add(meeting);
-                    }
+                    Meetings.Add(meeting);
                 }
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Chyba při načítání schůzek: {ex.Message}");
-            }
         }
-
-        private void UpdateCalendar()
+        catch (Exception ex)
         {
-            var newDays = new ObservableCollection<DayModel>();
-            Days.Clear();
+            Debug.WriteLine($"Chyba při načítání schůzek: {ex.Message}");
+        }
+    }
 
-            for (int i = 0; i < 7; i++)
+    private void UpdateCalendar()
+    {
+        var newDays = new ObservableCollection<DayModel>();
+        Days.Clear();
+
+        for (int i = 0; i < 7; i++)
+        {
+            var day = CurrentWeekStart.AddDays(i);
+            var meetingsForDay = Meetings.Where(m => m.Date.Date == day.Date);
+            var displays = new ObservableCollection<MeetingDisplay>();
+
+            foreach (var meeting in meetingsForDay)
             {
-                var day = CurrentWeekStart.AddDays(i);
+                var start = meeting.StartTime;
+                var end = meeting.EndTime;
 
-                var dayMeetings = Meetings
-                    .Where(m => m.Date.Date == day.Date)
-                    .Select(m => new MeetingDisplay
-                    {
-                        Meeting = m,
-                        GridRow = (int)((m.StartTime.TotalMinutes - 480) / 30),
-                        RowSpan = (int)Math.Ceiling((m.EndTime - m.StartTime).TotalMinutes / 30),
-                        ColorHex = m.ColorHex ?? "#FF6600",
-                        Title = m.Title ?? ""
-                    });
+                int baseHour = 8;
+                int rowsPerHour = 2;
 
-                newDays.Add(new DayModel
+                int gridRow = Math.Max(0, (int)((start.TotalHours - baseHour) * rowsPerHour));
+                int rowSpan = Math.Max(1, (int)((end - start).TotalHours * rowsPerHour));
+
+                displays.Add(new MeetingDisplay
                 {
-                    Date = day,
-                    ColumnIndex = i + 1,
-                    Meetings = new ObservableCollection<MeetingDisplay>(dayMeetings)
+                    Meeting = meeting,
+                    Title = meeting.Title,
+                    GridRow = gridRow,
+                    RowSpan = rowSpan,
+                    ColorHex = string.IsNullOrEmpty(meeting.ColorHex) ? "#FF6600" : meeting.ColorHex,
+                    TimeRange = $"{start:hh\\:mm}–{end:hh\\:mm}",
+                    ParticipantInfo = meeting.Participants?.Count.ToString() ?? "0"
                 });
             }
 
-            Days = newDays;
-            WeekRange = $"{CurrentWeekStart:dd.} - {CurrentWeekStart.AddDays(6):dd. MM. yyyy}";
+            newDays.Add(new DayModel
+            {
+                Date = day,
+                ColumnIndex = i + 1,
+                Meetings = displays
+            });
         }
 
-        [RelayCommand]
-        private void OnPreviousWeekClicked()
-        {
-            CurrentWeekStart = CurrentWeekStart.AddDays(-7);
-            UpdateCalendar();
-        }
+        Days = newDays;
+        WeekRange = $"{CurrentWeekStart:dd.} - {CurrentWeekStart.AddDays(6):dd. MM. yyyy}";
+    }
 
-        [RelayCommand]
-        public void OnNextWeekClicked()
-        {
-            CurrentWeekStart = CurrentWeekStart.AddDays(7);
-            UpdateCalendar();
-        }
+    [RelayCommand]
+    private void OnPreviousWeekClicked()
+    {
+        CurrentWeekStart = CurrentWeekStart.AddDays(-7);
+        UpdateCalendar();
+    }
 
-        [RelayCommand]
-        public async Task OnAddMeetingClicked()
-        {
-            await Shell.Current.GoToAsync(nameof(AddMeetingPage));
-        }
+    [RelayCommand]
+    public void OnNextWeekClicked()
+    {
+        CurrentWeekStart = CurrentWeekStart.AddDays(7);
+        UpdateCalendar();
+    }
+
+    [RelayCommand]
+    public async Task OnAddMeetingClicked()
+    {
+        await Shell.Current.GoToAsync(nameof(AddMeetingPage));
+    }
+}
+
+public static class DateTimeExtensions
+{
+    public static DateTime StartOfWeek(this DateTime dt, DayOfWeek startOfWeek)
+    {
+        int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
+        return dt.AddDays(-1 * diff).Date;
     }
 }
