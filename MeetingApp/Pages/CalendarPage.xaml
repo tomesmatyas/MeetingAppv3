@@ -62,16 +62,23 @@
                 </StackLayout>
 
                 <!-- Schůzky ve dnech -->
-                <CollectionView ItemsSource="{Binding Days}" IsGrouped="False">
+                <CollectionView ItemsSource="{Binding Days}" Grid.Row="1" Grid.ColumnSpan="7" Grid.Column="1">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Grid>
-                                <CollectionView ItemsSource="{Binding Meetings}">
+                            <Grid Grid.Column="{Binding ColumnIndex}">
+                                <CollectionView ItemsSource="{Binding Meetings}" ItemsLayout="HorizontalList">
                                     <CollectionView.ItemTemplate>
                                         <DataTemplate>
-                                            <Frame BackgroundColor="{Binding ColorHex}" Padding="2" Margin="1"
-                                   Grid.Row="{Binding GridRow}" Grid.RowSpan="{Binding RowSpan}">
-                                                <Label Text="{Binding Title}" FontSize="Small" TextColor="White" />
+                                            <Frame BackgroundColor="{Binding ColorHex}" Padding="4" Margin="1"
+                                                   Grid.Row="{Binding GridRow}" Grid.RowSpan="{Binding RowSpan}" Grid.ColumnSpan="1">
+                                                <Frame.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=EditMeetingCommand}" CommandParameter="{Binding Meeting}" />
+                                                </Frame.GestureRecognizers>
+                                                <VerticalStackLayout>
+                                                    <Label Text="{Binding Title}" FontSize="Small" TextColor="White" />
+                                                    <Label Text="{Binding TimeRange}" FontSize="10" TextColor="White" />
+                                                    <Label Text="{Binding ParticipantInfo}" FontSize="10" TextColor="White" />
+                                                </VerticalStackLayout>
                                             </Frame>
                                         </DataTemplate>
                                     </CollectionView.ItemTemplate>

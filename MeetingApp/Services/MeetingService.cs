@@ -1,6 +1,8 @@
 using MeetingApp.Models;
 using System.Diagnostics;
 using System.Net.Http.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace MeetingApp.Services;
 public class MeetingService
@@ -13,14 +15,31 @@ public class MeetingService
         _httpClient.BaseAddress = new Uri("http://localhost:5091"); // Bez /swagger!
     }
 
-    public async Task<List<Meeting>> GetMeetingsAsync()
+    public async Task<List<Meeting>?> GetMeetingsAsync()
     {
-        var response = await _httpClient.GetAsync("/api/meetings");
-        if (response.IsSuccessStatusCode)
+        try
         {
-            return await response.Content.ReadFromJsonAsync<List<Meeting>>();
+            var response = await _httpClient.GetAsync("/api/meetings");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine(json); // log kontrolní výstup
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    ReferenceHandler = ReferenceHandler.Preserve
+                };
+                Debug.WriteLine($"---------------!Schuzky se naèetly!--------------");
+                return JsonSerializer.Deserialize<List<Meeting>>(json, options);
+            }
         }
-        return null/*new List<Meeting>()*/;
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Chyba pøi naèítání schùzek: {ex.Message}");
+        }
+
+        return null;
     }
 
     public async Task<bool> AddMeetingAsync(Meeting meeting)

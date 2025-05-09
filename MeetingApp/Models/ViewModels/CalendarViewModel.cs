@@ -80,6 +80,7 @@ namespace MeetingApp.Models.ViewModels
                 newDays.Add(new DayModel
                 {
                     Date = day,
+                    ColumnIndex = i + 1,
                     Meetings = new ObservableCollection<MeetingDisplay>(dayMeetings)
                 });
             }
