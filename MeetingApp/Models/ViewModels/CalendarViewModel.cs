@@ -54,6 +54,10 @@ public partial class CalendarViewModel : ObservableObject
         }
     }
 
+
+
+
+
     private void UpdateCalendar()
     {
         var newDays = new ObservableCollection<DayModel>();
@@ -83,29 +87,25 @@ public partial class CalendarViewModel : ObservableObject
                     Title = meeting.Title,
                     GridRow = gridRow,
                     RowSpan = rowSpan,
-                    ColumnIndex = i + 1,
                     ColorHex = string.IsNullOrEmpty(meeting.ColorHex) ? "#FF6600" : meeting.ColorHex
-                    
-
                 });
-
             }
 
             newDays.Add(new DayModel
             {
                 Date = day,
-                
+                ColumnIndex = i + 1,
                 Meetings = displays
             });
         }
 
         Days = newDays;
         WeekRange = $"{CurrentWeekStart:dd.} - {CurrentWeekStart.AddDays(6):dd. MM. yyyy}";
-
     }
 
+
     [RelayCommand]
-    private void OnPreviousWeekClicked()
+    public void OnPreviousWeekClicked()
     {
         CurrentWeekStart = CurrentWeekStart.AddDays(-7);
         UpdateCalendar();

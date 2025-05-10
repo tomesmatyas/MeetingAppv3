@@ -3,61 +3,84 @@
              xmlns:vm="clr-namespace:MeetingApp.Models.ViewModels"
              x:Class="MeetingApp.Pages.CalendarPage"
              x:DataType="vm:CalendarViewModel"
-             xmlns:models="clr-namespace:MeetingApp.Models"
-             >
+             xmlns:models="clr-namespace:MeetingApp.Models">
 
     <ScrollView>
         <Grid Padding="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
             <!-- Navigace -->
-            <Button Text="◀" Command="{Binding PreviousWeekClickedCommand}" Grid.Row="0" Grid.Column="0"/>
-            <Label Text="{Binding WeekRange}" Grid.Row="0" Grid.Column="1" HorizontalOptions="Center" FontSize="Large"/>
-            <Button Text="▶" Command="{Binding NextWeekClickedCommand}" Grid.Row="0" Grid.Column="2"/>
-
-            <!-- Kalendářní mřížka -->
-            <Grid x:Name="CalendarCore" Grid.Row="1" Grid.ColumnSpan="3">
-                <Grid.RowDefinitions>
-                    <!-- 24 slotů po 30 minutách -->
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="40" />
-                    <!-- repeat 23x -->
-                </Grid.RowDefinitions>
-
+            <Grid Grid.Row="0" ColumnSpacing="10" Padding="0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button Text="◀" Command="{Binding PreviousWeekClickedCommand}" Grid.Column="0"/>
+                <Label Text="{Binding WeekRange}" Grid.Column="1" HorizontalOptions="Center" FontSize="24" FontAttributes="Bold"/>
+                <Button Text="▶" Command="{Binding NextWeekClickedCommand}" Grid.Column="2"/>
+            </Grid>
+
+            <!-- Kalendářní grid -->
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" />
+                    <!-- 48 půlhodinových slotů -->
+                    <!-- manuálně zapsané řádky -->
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -68,7 +91,8 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Hlavička dnů -->
-                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Days[0].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center"/>
+                <Label Grid.Row="0" Grid.Column="0" />
+                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Days[0].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" FontAttributes="Bold"/>
                 <Label Grid.Row="0" Grid.Column="2" Text="{Binding Days[1].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center"/>
                 <Label Grid.Row="0" Grid.Column="3" Text="{Binding Days[2].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center"/>
                 <Label Grid.Row="0" Grid.Column="4" Text="{Binding Days[3].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center"/>
@@ -77,52 +101,421 @@
                 <Label Grid.Row="0" Grid.Column="7" Text="{Binding Days[6].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center"/>
 
                 <!-- Časová osa vlevo -->
+                <!-- zde můžeš ručně přidat popisky času pro každé dvě řádky jako 8:00, 8:30, ... -->
+                <Label Grid.Row="1" Grid.Column="0" Text="8:00"/>
+                <Label Grid.Row="3" Grid.Column="0" Text="9:00"/>
+                <Label Grid.Row="5" Grid.Column="0" Text="10:00"/>
+                <Label Grid.Row="7" Grid.Column="0" Text="11:00"/>
+                <Label Grid.Row="9" Grid.Column="0" Text="12:00"/>
+                <Label Grid.Row="11" Grid.Column="0" Text="13:00"/>
+                <Label Grid.Row="13" Grid.Column="0" Text="14:00"/>
+                <Label Grid.Row="15" Grid.Column="0" Text="15:00"/>
+                <Label Grid.Row="17" Grid.Column="0" Text="16:00"/>
+                <Label Grid.Row="19" Grid.Column="0" Text="17:00"/>
+                <Label Grid.Row="21" Grid.Column="0" Text="18:00"/>
+                <Label Grid.Row="23" Grid.Column="0" Text="19:00"/>
+                <Label Grid.Row="25" Grid.Column="0" Text="20:00"/>
+                <Label Grid.Row="27" Grid.Column="0" Text="21:00"/>
+                <Label Grid.Row="29" Grid.Column="0" Text="22:00"/>
 
+                <Grid x:Name="DayGrid0" Grid.Row="1" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <!-- 48 půlhodinových slotů -->
+                        <!-- manuálně zapsané řádky -->
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
 
-                <Label Grid.Row="0" Grid.Column="0" Text="8:00"/>
-                <Label Grid.Row="2" Grid.Column="0" Text="9:00"/>
-                <Label Grid.Row="4" Grid.Column="0" Text="10:00"/>
-                <Label Grid.Row="6" Grid.Column="0" Text="11:00"/>
-                <Label Grid.Row="8" Grid.Column="0" Text="12:00"/>
-                <Label Grid.Row="10" Grid.Column="0" Text="13:00"/>
-                <Label Grid.Row="12" Grid.Column="0" Text="14:00"/>
-                <Label Grid.Row="14" Grid.Column="0" Text="15:00"/>
-                <Label Grid.Row="16" Grid.Column="0" Text="16:00"/>
-                <Label Grid.Row="18" Grid.Column="0" Text="17:00"/>
-                <Label Grid.Row="20" Grid.Column="0" Text="18:00"/>
-                <Label Grid.Row="22" Grid.Column="0" Text="19:00"/>
-                
+                    </Grid.RowDefinitions>
+                </Grid>
+                <Grid x:Name="DayGrid1" Grid.Row="1" Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <!-- 48 půlhodinových slotů -->
+                        <!-- manuálně zapsané řádky -->
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
 
-                <!-- Dynamicky generované sloty -->
+                    </Grid.RowDefinitions>
+                </Grid>
+                <Grid x:Name="DayGrid2" Grid.Row="1" Grid.Column="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <!-- 48 půlhodinových slotů -->
+                        <!-- manuálně zapsané řádky -->
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
 
-                <StackLayout BindableLayout.ItemsSource="{Binding Days[0].Meetings}">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="models.MeetingDisplay">
-                        <Frame BackgroundColor="{Binding ColorHex}" Padding="4" Margin="1" Grid.Row="{Binding GridRow}" Grid.RowSpan="{Binding RowSpan}">    
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer 
-                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=EditMeetingCommand}" 
-                                      CommandParameter="{Binding Meeting}" />
-                            </Frame.GestureRecognizers>
-                            <VerticalStackLayout>
-                                <Label Text="{Binding Title}" FontSize="Small" TextColor="White"/>
-                                <Label Text="{Binding TimeRange}" FontSize="10" TextColor="White"/>
-                                <Label Text="{Binding ParticipantInfo}" FontSize="10" TextColor="White"/>
-                            </VerticalStackLayout>
-                        </Frame>
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
+                    </Grid.RowDefinitions>
+                </Grid>
+                <Grid x:Name="DayGrid3" Grid.Row="1" Grid.Column="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <!-- 48 půlhodinových slotů -->
+                        <!-- manuálně zapsané řádky -->
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
 
-                <!-- zopakovat ItemsControl pro Grid.Column="2" až "7" -->
-                <!-- ... -->
-                </StackLayout>
-            
-        </Grid>
+                    </Grid.RowDefinitions>
+                </Grid>
+                <Grid x:Name="DayGrid4" Grid.Row="1" Grid.Column="5">
+    <Grid.RowDefinitions>
+        <RowDefinition Height="40" />
+        <!-- 48 půlhodinových slotů -->
+        <!-- manuálně zapsané řádky -->
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+        <RowDefinition Height="30" />
+
+    </Grid.RowDefinitions>
+</Grid>
+                <Grid x:Name="DayGrid5" Grid.Row="1" Grid.Column="6">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <!-- 48 půlhodinových slotů -->
+                        <!-- manuálně zapsané řádky -->
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+
+                    </Grid.RowDefinitions>
+                </Grid>
+                <Grid x:Name="DayGrid6" Grid.Row="1" Grid.Column="7">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <!-- 48 půlhodinových slotů -->
+                        <!-- manuálně zapsané řádky -->
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+
+                    </Grid.RowDefinitions>
+                </Grid>
+
+            </Grid>
 
             <!-- Přidat schůzku -->
-            <Button Text="+" Command="{Binding AddMeetingClickedCommand}" Grid.Row="2" Grid.Column="2"
-                    WidthRequest="50" HeightRequest="50" CornerRadius="25"
-                    BackgroundColor="Orange" TextColor="White" FontSize="Large" HorizontalOptions="End"/>
+            <Button Text="+" Command="{Binding AddMeetingClickedCommand}" Grid.Row="2" WidthRequest="50" HeightRequest="50" CornerRadius="25"
+                    BackgroundColor="OrangeRed" TextColor="White" FontSize="24" HorizontalOptions="End" VerticalOptions="End"/>
         </Grid>
     </ScrollView>
 </ContentPage>
