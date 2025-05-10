@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using CommunityToolkit.Mvvm.Messaging.Messages;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace MeetingApp.Services;
 public class MeetingService
@@ -74,4 +76,8 @@ public class MeetingService
             return false;
         }
     }
+}
+public class RefreshCalendarMessage : ValueChangedMessage<bool>
+{
+    public RefreshCalendarMessage() : base(true) { }
 }

@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using MeetingApp.Models;
 using MeetingApp.Pages;
 using MeetingApp.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+
 
 namespace MeetingApp.Models.ViewModels;
 
@@ -30,8 +32,6 @@ public partial class CalendarViewModel : ObservableObject
     public CalendarViewModel(MeetingService meetingService)
     {
         _meetingService = meetingService;
-        LoadMeetings();
-        UpdateCalendar();
     }
 
     public async Task LoadMeetings()
@@ -42,11 +42,15 @@ public partial class CalendarViewModel : ObservableObject
             if (meetings != null)
             {
                 Meetings.Clear();
+                Debug.WriteLine("Načtené schůzky:");
                 foreach (var meeting in meetings)
                 {
+                    Debug.WriteLine($"  - {meeting.Title} na {meeting.Date:dd.MM.yyyy}");
                     Meetings.Add(meeting);
                 }
+
             }
+            UpdateCalendar();
         }
         catch (Exception ex)
         {
@@ -80,7 +84,7 @@ public partial class CalendarViewModel : ObservableObject
 
                 int gridRow = Math.Max(0, (int)((start.TotalMinutes - baseMinutes) / blockMinutes));
                 int rowSpan = Math.Max(1, (int)((end - start).TotalMinutes / blockMinutes));
-
+                Debug.WriteLine($" {meeting.Title} @ {day:dd.MM} → Row {gridRow}, Span {rowSpan}");
                 displays.Add(new MeetingDisplay
                 {
                     Meeting = meeting,
@@ -109,6 +113,8 @@ public partial class CalendarViewModel : ObservableObject
     {
         CurrentWeekStart = CurrentWeekStart.AddDays(-7);
         UpdateCalendar();
+        WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
+
     }
 
     [RelayCommand]
@@ -116,6 +122,8 @@ public partial class CalendarViewModel : ObservableObject
     {
         CurrentWeekStart = CurrentWeekStart.AddDays(7);
         UpdateCalendar();
+        WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
+
     }
 
     [RelayCommand]

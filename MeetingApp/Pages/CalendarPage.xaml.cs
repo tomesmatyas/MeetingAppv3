@@ -1,5 +1,7 @@
+using CommunityToolkit.Mvvm.Messaging;
 using MeetingApp.Models;
 using MeetingApp.Models.ViewModels;
+using MeetingApp.Services;
 using System.Diagnostics;
 
 namespace MeetingApp.Pages;
@@ -12,29 +14,48 @@ public partial class CalendarPage : ContentPage
         InitializeComponent();
         _viewModel = vm;
         BindingContext = _viewModel;
+        WeakReferenceMessenger.Default.Register<RefreshCalendarMessage>(this, (r, m) =>
+        {
+            RefreshCalendar();
+        });
+    }
+    private void RefreshCalendar()
+    {
+        List<Grid> dayGrids = new() { DayGrid0, DayGrid1, DayGrid2, DayGrid3, DayGrid4, DayGrid5, DayGrid6 };
+
+        for (int i = 0; i < 7; i++)
+        {
+            dayGrids[i].Children.Clear();
+            AddMeetingsToGrid(dayGrids[i], _viewModel.Days[i]);
+        }
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
         await _viewModel.LoadMeetings();
-        if (_viewModel.Days.Count >= 7)
+        Debug.WriteLine($"Poèet dnù: {_viewModel.Days.Count}");
+        for (int i = 0; i < _viewModel.Days.Count; i++)
         {
-            AddMeetingsToGrid(DayGrid0, _viewModel.Days[0]);
-            AddMeetingsToGrid(DayGrid1, _viewModel.Days[1]);
-            AddMeetingsToGrid(DayGrid2, _viewModel.Days[2]);
-            AddMeetingsToGrid(DayGrid3, _viewModel.Days[3]);
-            AddMeetingsToGrid(DayGrid4, _viewModel.Days[4]);
-            AddMeetingsToGrid(DayGrid5, _viewModel.Days[5]);
-            AddMeetingsToGrid(DayGrid6, _viewModel.Days[6]);
+            Debug.WriteLine($"Den {i}: {_viewModel.Days[i].Date:dd.MM.yyyy}, schùzek: {_viewModel.Days[i].Meetings.Count}");
         }
+        List<Grid> dayGrids = new() { DayGrid0, DayGrid1, DayGrid2, DayGrid3, DayGrid4, DayGrid5, DayGrid6 };
+
+        foreach (var grid in dayGrids)
+            grid.Children.Clear();
+
+        for (int i = 0; i < 7; i++)
+            AddMeetingsToGrid(dayGrids[i], _viewModel.Days[i]);
     }
     private void AddMeetingsToGrid(Grid grid, DayModel day)
     {
         grid.Children.Clear();
+        Debug.WriteLine($" Renderuji den: {day.Date:dd.MM.yyyy} ({day.Meetings.Count} schùzek)");
 
         foreach (var meeting in day.Meetings)
         {
+            Debug.WriteLine($" {meeting.Title} {meeting.TimeRange}");
             var frame = new Frame
             {
                 BackgroundColor = Color.FromArgb(meeting.ColorHex),
@@ -59,7 +80,7 @@ public partial class CalendarPage : ContentPage
                 //CommandParameter = meeting.Meeting
             };
             frame.GestureRecognizers.Add(tap);
-            Debug.WriteLine();
+            
             Grid.SetRow(frame, meeting.GridRow);
             Grid.SetRowSpan(frame, meeting.RowSpan);
             grid.Children.Add(frame);
