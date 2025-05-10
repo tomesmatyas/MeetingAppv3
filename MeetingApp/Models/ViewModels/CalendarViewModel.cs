@@ -83,7 +83,9 @@ public partial class CalendarViewModel : ObservableObject
                     Title = meeting.Title,
                     GridRow = gridRow,
                     RowSpan = rowSpan,
+                    ColumnIndex = i + 1,
                     ColorHex = string.IsNullOrEmpty(meeting.ColorHex) ? "#FF6600" : meeting.ColorHex
+                    
 
                 });
 
@@ -92,7 +94,7 @@ public partial class CalendarViewModel : ObservableObject
             newDays.Add(new DayModel
             {
                 Date = day,
-                ColumnIndex = i + 1,
+                
                 Meetings = displays
             });
         }
