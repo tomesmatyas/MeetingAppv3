@@ -34,7 +34,7 @@ public partial class CalendarViewModel : ObservableObject
         UpdateCalendar();
     }
 
-    private async void LoadMeetings()
+    public async Task LoadMeetings()
     {
         try
         {

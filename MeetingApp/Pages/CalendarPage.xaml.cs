@@ -14,17 +14,20 @@ public partial class CalendarPage : ContentPage
         BindingContext = _viewModel;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-
-        AddMeetingsToGrid(DayGrid0, _viewModel.Days[0]);
-        AddMeetingsToGrid(DayGrid1, _viewModel.Days[1]);
-        AddMeetingsToGrid(DayGrid2, _viewModel.Days[2]);
-        AddMeetingsToGrid(DayGrid3, _viewModel.Days[3]);
-        AddMeetingsToGrid(DayGrid4, _viewModel.Days[4]);
-        AddMeetingsToGrid(DayGrid5, _viewModel.Days[5]);
-        AddMeetingsToGrid(DayGrid6, _viewModel.Days[6]);
+        await _viewModel.LoadMeetings();
+        if (_viewModel.Days.Count >= 7)
+        {
+            AddMeetingsToGrid(DayGrid0, _viewModel.Days[0]);
+            AddMeetingsToGrid(DayGrid1, _viewModel.Days[1]);
+            AddMeetingsToGrid(DayGrid2, _viewModel.Days[2]);
+            AddMeetingsToGrid(DayGrid3, _viewModel.Days[3]);
+            AddMeetingsToGrid(DayGrid4, _viewModel.Days[4]);
+            AddMeetingsToGrid(DayGrid5, _viewModel.Days[5]);
+            AddMeetingsToGrid(DayGrid6, _viewModel.Days[6]);
+        }
     }
     private void AddMeetingsToGrid(Grid grid, DayModel day)
     {
@@ -47,6 +50,7 @@ public partial class CalendarPage : ContentPage
                         new Label { Text = meeting.ParticipantInfo, FontSize = 10, TextColor = Colors.White }
                     }
                 }
+
             };
 
             var tap = new TapGestureRecognizer
@@ -55,7 +59,7 @@ public partial class CalendarPage : ContentPage
                 //CommandParameter = meeting.Meeting
             };
             frame.GestureRecognizers.Add(tap);
-
+            Debug.WriteLine();
             Grid.SetRow(frame, meeting.GridRow);
             Grid.SetRowSpan(frame, meeting.RowSpan);
             grid.Children.Add(frame);
