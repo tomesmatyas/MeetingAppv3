@@ -25,6 +25,7 @@
             </Grid>
 
             <!-- Kalendářní grid -->
+
             <Grid x:Name="CalendarGrid" Grid.Row="1">
                 <!-- 48 půlhodinových slotů -->
                 <Grid.RowDefinitions>

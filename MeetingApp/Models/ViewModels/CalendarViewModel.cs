@@ -131,6 +131,12 @@ public partial class CalendarViewModel : ObservableObject
     {
         await Shell.Current.GoToAsync(nameof(AddMeetingPage));
     }
+
+    [RelayCommand]
+    public async Task EditMeeting()
+    {
+        await Shell.Current.GoToAsync(nameof(AddMeetingPage));
+    }
 }
 
 public static class DateTimeExtensions

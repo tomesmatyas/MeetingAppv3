@@ -1,0 +1,34 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MeetingApp.Models.ViewModels"
+             x:Class="MeetingApp.Pages.MeetingDetailPage"
+             x:DataType="vm:MeetingDetailViewModel"
+             Title="Detail schůzky">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <!-- Základní informace o schůzce -->
+            <Label Text="{Binding Title}" FontSize="24" FontAttributes="Bold"/>
+            <Label Text="{Binding Date, StringFormat='Datum: {0:dd.MM.yyyy}'}" FontSize="16"/>
+            <Label Text="{Binding TimeRange}" FontSize="16"/>
+
+            <!-- Seznam účastníků -->
+            <Label Text="Účastníci:" FontAttributes="Bold"/>
+            <CollectionView ItemsSource="{Binding Participants}" HeightRequest="200">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding}" FontSize="14"/>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Tlačítka -->
+            <HorizontalStackLayout Spacing="10">
+                <Button Text="Zpět" Command="{Binding BackCommand}" BackgroundColor="LightGray"/>
+                <Button Text="Upravit" Command="{Binding EditCommand}" BackgroundColor="OrangeRed" TextColor="White"/>
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

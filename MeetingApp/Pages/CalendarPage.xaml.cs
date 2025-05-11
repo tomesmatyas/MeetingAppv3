@@ -74,13 +74,13 @@ public partial class CalendarPage : ContentPage
 
             };
 
-            var tap = new TapGestureRecognizer
+            var tap = new TapGestureRecognizer();
+            tap.Tapped += async (s, e) =>
             {
-                //Command = _viewModel.EditMeetingCommand,
-                //CommandParameter = meeting.Meeting
+                await Shell.Current.GoToAsync($"{nameof(AddMeetingPage)}?id={meeting.Meeting.Id}");
             };
             frame.GestureRecognizers.Add(tap);
-            
+
             Grid.SetRow(frame, meeting.GridRow);
             Grid.SetRowSpan(frame, meeting.RowSpan);
             grid.Children.Add(frame);
