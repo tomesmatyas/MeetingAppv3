@@ -129,12 +129,14 @@ public partial class CalendarViewModel : ObservableObject
     [RelayCommand]
     public async Task OnAddMeetingClicked()
     {
+        await LoadMeetings();
         await Shell.Current.GoToAsync(nameof(AddMeetingPage));
     }
 
     [RelayCommand]
     public async Task EditMeeting()
     {
+        await LoadMeetings();
         await Shell.Current.GoToAsync(nameof(AddMeetingPage));
     }
 }

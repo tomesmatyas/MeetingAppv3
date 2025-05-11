@@ -26,7 +26,7 @@ namespace MeetingApp
     		builder.Logging.AddDebug();
 
             builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri("http://localhost:5091") });
-
+            builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>();
             // Registrace MeetingService
             builder.Services.AddSingleton<MeetingService>();
 
@@ -38,6 +38,10 @@ namespace MeetingApp
               builder.Services.AddTransient<TestPage>();
             builder.Services.AddTransient<AddMeetingPage>();
             builder.Services.AddTransient<CalendarPage>();
+
+            builder.Services.AddTransient<MeetingDetailViewModel>();
+            builder.Services.AddTransient<MeetingDetailPage>();
+            
 #endif
 
             return builder.Build();

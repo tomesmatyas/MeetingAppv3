@@ -5,9 +5,10 @@ namespace MeetingApp.Pages;
 
 public partial class TestPage : ContentPage
 {
-	public TestPage()
+	public TestPage(TestViewModel vm)
 	{;
 		InitializeComponent();
-        BindingContext = new TestViewModel(new MeetingService(new HttpClient { BaseAddress = new Uri("http://localhost:5091") }));
+		BindingContext = vm;
+
     }
 }

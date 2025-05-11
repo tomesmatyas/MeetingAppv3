@@ -31,7 +31,7 @@ public class MeetingDisplay
     public int GridRow { get; set; }
     public int RowSpan { get; set; }
     public string ColorHex { get; set; } = "#FF6600";
-    
+    public int Id => Meeting.Id;
     public string TimeRange => $"{Meeting.StartTime:hh\\:mm}–{Meeting.EndTime:hh\\:mm}";
     public string ParticipantInfo => Meeting.Participants?.Count.ToString() ?? "0";
 
