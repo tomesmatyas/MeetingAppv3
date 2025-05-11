@@ -20,7 +20,19 @@ public class Participant
     public Meeting? Meeting { get; set; }
 }
 
-public class DayViewModel
+public class MeetingDisplay
+{
+    public Meeting Meeting { get; set; } = default!;
+    public string Title { get; set; } = "";
+    public int GridRow { get; set; }
+    public int RowSpan { get; set; }
+    public string ColorHex { get; set; } = "#FF6600";
+    
+    public string TimeRange => $"{Meeting.StartTime:hh\\:mm}–{Meeting.EndTime:hh\\:mm}";
+    public string ParticipantInfo => Meeting.Participants?.Count.ToString() ?? "0";
+
+}
+public class DayModel
 {
     public DateTime Date { get; set; }
     public ObservableCollection<Meeting> Meetings { get; set; } = new();
