@@ -8,6 +8,7 @@ namespace MeetingApp
         {
             InitializeComponent();
             Routing.RegisterRoute(nameof(AddMeetingPage), typeof(AddMeetingPage));
+            Routing.RegisterRoute(nameof(MeetingDetailPage), typeof(MeetingDetailPage));
         }
     }
 }

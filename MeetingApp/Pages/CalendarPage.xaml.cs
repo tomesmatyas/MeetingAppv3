@@ -77,7 +77,8 @@ public partial class CalendarPage : ContentPage
             var tap = new TapGestureRecognizer();
             tap.Tapped += async (s, e) =>
             {
-                await Shell.Current.GoToAsync($"{nameof(AddMeetingPage)}?id={meeting.Meeting.Id}");
+
+                await Shell.Current.GoToAsync($"{nameof(MeetingDetailPage)}?id={meeting.Id}");
             };
             frame.GestureRecognizers.Add(tap);
 
