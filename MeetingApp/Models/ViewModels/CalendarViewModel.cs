@@ -67,14 +67,20 @@ public partial class CalendarViewModel : ObservableObject
         var newDays = new ObservableCollection<DayModel>();
         Days.Clear();
 
-        int baseHour = 8;         // začátek dne (8:00)
-        int blockMinutes = 30;    // 1 GridRow = 30 minut
+        var allMeetings = Meetings.ToList();
+
+        // Přidat instance opakujících se schůzek pro aktuální týden
+        var recurringInstances = GenerateRecurringMeetingsForWeek(CurrentWeekStart);
+        allMeetings.AddRange(recurringInstances);
+
+        int baseHour = 8;
+        int blockMinutes = 30;
         int baseMinutes = baseHour * 60;
 
         for (int i = 0; i < 7; i++)
         {
             var day = CurrentWeekStart.AddDays(i);
-            var meetingsForDay = Meetings.Where(m => m.Date.Date == day.Date);
+            var meetingsForDay = allMeetings.Where(m => m.Date.Date == day.Date);
             var displays = new ObservableCollection<MeetingDisplay>();
 
             foreach (var meeting in meetingsForDay)
@@ -84,7 +90,6 @@ public partial class CalendarViewModel : ObservableObject
 
                 int gridRow = Math.Max(0, (int)((start.TotalMinutes - baseMinutes) / blockMinutes));
                 int rowSpan = Math.Max(1, (int)((end - start).TotalMinutes / blockMinutes));
-                Debug.WriteLine($" {meeting.Title} @ {day:dd.MM} → Row {gridRow}, Span {rowSpan}");
                 displays.Add(new MeetingDisplay
                 {
                     Meeting = meeting,
@@ -105,6 +110,80 @@ public partial class CalendarViewModel : ObservableObject
 
         Days = newDays;
         WeekRange = $"{CurrentWeekStart:dd.} - {CurrentWeekStart.AddDays(6):dd. MM. yyyy}";
+        WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
+    }
+
+    // Vygeneruj virtuální instance pro týden
+    private List<Meeting> GenerateRecurringMeetingsForWeek(DateTime weekStart)
+    {
+        var result = new List<Meeting>();
+        var weekEnd = weekStart.AddDays(7);
+
+        foreach (var m in Meetings.Where(m => m.IsRegular && m.Recurrence != null))
+        {
+            var recurrence = m.Recurrence!;
+            var pattern = recurrence.Pattern;
+            var interval = recurrence.Interval;
+            var endDate = recurrence.EndDate ?? weekEnd;
+
+            var originalDate = m.Date;
+
+            DateTime dateIterator = recurrence.Pattern switch
+            {
+                "Weekly" => originalDate.StartOfWeek(DayOfWeek.Monday),
+                "Monthly" => new DateTime(originalDate.Year, originalDate.Month, 1),
+                _ => originalDate
+            };
+
+            while (dateIterator <= weekEnd)
+            {
+                if (dateIterator >= weekStart && dateIterator <= endDate)
+                {
+                    // ověřit, zda má být tento den instancí
+                    if (pattern == "Weekly" && (dateIterator - originalDate).Days % (7 * interval) == 0)
+                    {
+                        var inst = new Meeting
+                        {
+                            Id = m.Id,
+                            Title = m.Title,
+                            Date = dateIterator,
+                            StartTime = m.StartTime,
+                            EndTime = m.EndTime,
+                            ColorHex = m.ColorHex,
+                            IsRegular = m.IsRegular,
+                            RecurrenceId = m.RecurrenceId,
+                            Recurrence = m.Recurrence,
+                            Participants = m.Participants
+                        }; 
+                        result.Add(inst);
+                    }
+                    else if (pattern == "Monthly" && originalDate.Day == dateIterator.Day)
+                    {
+                        var monthsBetween = ((dateIterator.Year - originalDate.Year) * 12) + dateIterator.Month - originalDate.Month;
+                        if (monthsBetween % interval == 0)
+                        {
+                            var inst = new Meeting
+                            {
+                                Id = m.Id,
+                                Title = m.Title,
+                                Date = dateIterator,
+                                StartTime = m.StartTime,
+                                EndTime = m.EndTime,
+                                ColorHex = m.ColorHex,
+                                IsRegular = m.IsRegular,
+                                RecurrenceId = m.RecurrenceId,
+                                Recurrence = m.Recurrence,
+                                Participants = m.Participants
+                            };
+                            result.Add(inst);
+                        }
+                    }
+                }
+                dateIterator = dateIterator.AddDays(1);
+            }
+        }
+
+        return result;
     }
 
 

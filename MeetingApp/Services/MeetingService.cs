@@ -2,6 +2,7 @@ using MeetingApp.Models;
 using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
+using MeetingApp.Services;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
@@ -39,11 +40,11 @@ public class MeetingService
 
                 if (meetings != null)
                 {
-                    await _localStorage.SaveMeetingsAsync(meetings);
+                    var expanded = ExpandRecurringMeetings(meetings);
+                    await _localStorage.SaveMeetingsAsync(expanded);
                     Debug.WriteLine("---------------!Schuzky se nacetly a ulozily offline!--------------");
+                    return expanded;
                 }
-
-                return meetings ?? new List<Meeting>();
             }
         }
         catch (Exception ex)
@@ -52,6 +53,64 @@ public class MeetingService
         }
 
         return await _localStorage.LoadMeetingsAsync();
+    }
+
+    private List<Meeting> ExpandRecurringMeetings(List<Meeting> meetings)
+    {
+        var result = new List<Meeting>();
+        var rangeStart = DateTime.Today.StartOfWeek(DayOfWeek.Monday);
+        var rangeEnd = rangeStart.AddDays(6);
+
+        foreach (var m in meetings)
+        {
+            if (!m.IsRegular || m.Recurrence == null)
+            {
+                result.Add(m);
+                continue;
+            }
+
+            var rec = m.Recurrence;
+            var endDate = rec.EndDate ?? rangeEnd;
+            var current = m.Date;
+
+            var instanceDate = rangeStart;
+            while (instanceDate <= rangeEnd && instanceDate <= endDate)
+            {
+                if (rec.Pattern == "Weekly" && (instanceDate - current).Days % (7 * rec.Interval) == 0)
+                {
+                    result.Add(CloneMeeting(m, instanceDate));
+                }
+                else if (rec.Pattern == "Monthly" && current.Day == instanceDate.Day)
+                {
+                    var monthsBetween = ((instanceDate.Year - current.Year) * 12) + instanceDate.Month - current.Month;
+                    if (monthsBetween % rec.Interval == 0)
+                    {
+                        result.Add(CloneMeeting(m, instanceDate));
+                    }
+                }
+
+                instanceDate = instanceDate.AddDays(1);
+            }
+        }
+
+        return result;
+    }
+
+    private Meeting CloneMeeting(Meeting source, DateTime date)
+    {
+        return new Meeting
+        {
+            Id = source.Id,
+            Title = source.Title,
+            Date = date,
+            StartTime = source.StartTime,
+            EndTime = source.EndTime,
+            ColorHex = source.ColorHex,
+            IsRegular = true,
+            RecurrenceId = source.RecurrenceId,
+            Recurrence = source.Recurrence,
+            Participants = source.Participants
+        };
     }
 
     public async Task<bool> AddMeetingAsync(Meeting meeting)
@@ -69,7 +128,6 @@ public class MeetingService
             Debug.WriteLine($"[Offline] Chyba pri odesilani schuzky: {ex.Message}");
         }
 
-        // Offline fallback
         var offlineMeetings = await _localStorage.LoadMeetingsAsync();
         offlineMeetings.Add(meeting);
         await _localStorage.SaveMeetingsAsync(offlineMeetings);
@@ -77,7 +135,7 @@ public class MeetingService
         return false;
     }
 
-    public async Task AddParticipantAsync(int meetingId, Participant participant)
+    public async Task AddParticipantAsync(int meetingId, MeetingParticipant participant)
     {
         try
         {
@@ -104,8 +162,8 @@ public class MeetingService
             return false;
         }
     }
-    public async Task<bool> UpdateMeetingAsync(Meeting meeting)
 
+    public async Task<bool> UpdateMeetingAsync(Meeting meeting)
     {
         try
         {
@@ -118,7 +176,6 @@ public class MeetingService
             Debug.WriteLine($"Chyba pøi online aktualizaci: {ex.Message}");
         }
 
-        // Offline fallback
         await _localStorage.UpdateMeetingAsync(meeting);
         return true;
     }
@@ -166,6 +223,7 @@ public class MeetingService
             }
         }
     }
+
     public async Task<Meeting?> GetMeetingByIdAsync(int id)
     {
         try
@@ -177,7 +235,7 @@ public class MeetingService
                 return JsonSerializer.Deserialize<Meeting>(json, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,
-                    ReferenceHandler = ReferenceHandler.Preserve // fix
+                    ReferenceHandler = ReferenceHandler.Preserve
                 });
             }
         }
@@ -189,204 +247,18 @@ public class MeetingService
         var offline = await _localStorage.LoadMeetingsAsync();
         return offline.FirstOrDefault(m => m.Id == id);
     }
-
 }
 
-public interface ILocalStorageService
-{
-    Task SaveMeetingsAsync(List<Meeting> meetings);
-    Task<List<Meeting>> LoadMeetingsAsync();
-    Task UpdateMeetingAsync(Meeting meeting);
-    Task SavePendingParticipantAsync(int meetingId, Participant participant);
-    Task<Dictionary<int, List<Participant>>> LoadPendingParticipantsAsync();
-    Task<List<Meeting>> LoadPendingMeetingsAsync();
-    Task SavePendingMeetingsAsync(List<Meeting> meetings);
-    Task ClearPendingMeetingsAsync();
-    Task RemovePendingMeetingAsync(Meeting meeting);
-    Task RemovePendingParticipantAsync(int meetingId, Participant participant);
 
-}
-
-public class LocalStorageService : ILocalStorageService
-{
-    private readonly string _filePath;
-
-    public LocalStorageService()
-    {
-        var folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        _filePath = Path.Combine(folder, "meetings.json");
-    }
-
-    private readonly string _pendingFilePath = Path.Combine(
-    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-    "pending_participants.json"
-);
-
-    public async Task SavePendingParticipantAsync(int meetingId, Participant participant)
-    {
-        var pending = await LoadPendingParticipantsAsync();
-
-        if (!pending.ContainsKey(meetingId))
-            pending[meetingId] = new List<Participant>();
-
-        pending[meetingId].Add(participant);
-
-        var json = JsonSerializer.Serialize(pending, new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
-
-        await File.WriteAllTextAsync(_pendingFilePath, json);
-    }
-
-    public async Task<Dictionary<int, List<Participant>>> LoadPendingParticipantsAsync()
-    {
-        try
-        {
-            if (!File.Exists(_pendingFilePath))
-                return new Dictionary<int, List<Participant>>();
-
-            var json = await File.ReadAllTextAsync(_pendingFilePath);
-            return JsonSerializer.Deserialize<Dictionary<int, List<Participant>>>(json)
-                   ?? new Dictionary<int, List<Participant>>();
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Chyba pøi ètení pending úèastníkù: {ex.Message}");
-            return new Dictionary<int, List<Participant>>();
-        }
-    }
-    public async Task SaveMeetingsAsync(List<Meeting> meetings)
-    {
-        try
-        {
-            var json = JsonSerializer.Serialize(meetings, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
-            await File.WriteAllTextAsync(_filePath, json);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Chyba pøi ukládání do local storage: {ex.Message}");
-        }
-    }
-
-    public async Task<List<Meeting>> LoadMeetingsAsync()
-    {
-        try
-        {
-            if (!File.Exists(_filePath))
-                return new List<Meeting>();
-
-            var json = await File.ReadAllTextAsync(_filePath);
-            return JsonSerializer.Deserialize<List<Meeting>>(json) ?? new List<Meeting>();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Chyba pøi ètení z local storage: {ex.Message}");
-            return new List<Meeting>();
-        }
-
-    }
-    public async Task UpdateMeetingAsync(Meeting updatedMeeting)
-    {
-        var meetings = await LoadMeetingsAsync();
-        var index = meetings.FindIndex(m => m.Id == updatedMeeting.Id);
-        if (index >= 0)
-        {
-            meetings[index] = updatedMeeting;
-            await SaveMeetingsAsync(meetings);
-        }
-    }
-
-    private readonly string _pendingMeetingsPath = Path.Combine(
-    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-    "pending_meetings.json"
-);
-
-    public async Task<List<Meeting>> LoadPendingMeetingsAsync()
-    {
-        try
-        {
-            if (!File.Exists(_pendingMeetingsPath))
-                return new List<Meeting>();
-
-            var json = await File.ReadAllTextAsync(_pendingMeetingsPath);
-            return JsonSerializer.Deserialize<List<Meeting>>(json) ?? new List<Meeting>();
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Chyba pøi ètení pending schùzek: {ex.Message}");
-            return new List<Meeting>();
-        }
-    }
-
-    public async Task SavePendingMeetingsAsync(List<Meeting> meetings)
-    {
-        try
-        {
-            var json = JsonSerializer.Serialize(meetings, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
-            await File.WriteAllTextAsync(_pendingMeetingsPath, json);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Chyba pøi ukládání pending schùzek: {ex.Message}");
-        }
-    }
-
-    public async Task ClearPendingMeetingsAsync()
-    {
-        try
-        {
-            if (File.Exists(_pendingMeetingsPath))
-                File.Delete(_pendingMeetingsPath);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Chyba pøi mazání pending schùzek: {ex.Message}");
-        }
-    }
-
-    public async Task RemovePendingMeetingAsync(Meeting meeting)
-    {
-        var meetings = await LoadMeetingsAsync();
-        meetings.RemoveAll(m => m.Id == meeting.Id || (m.Title == meeting.Title && m.Date == meeting.Date));
-        await SaveMeetingsAsync(meetings);
-    }
-
-    public async Task RemovePendingParticipantAsync(int meetingId, Participant participant)
-    {
-        var pending = await LoadPendingParticipantsAsync();
-
-        if (pending.ContainsKey(meetingId))
-        {
-            var list = pending[meetingId];
-            list.RemoveAll(p => p.Name == participant.Name && p.Email == participant.Email);
-
-            if (list.Count == 0)
-                pending.Remove(meetingId);
-
-            var json = JsonSerializer.Serialize(pending, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
-
-            await File.WriteAllTextAsync(_pendingFilePath, json);
-        }
-    }
-
-
-}
 
 public class RefreshCalendarMessage : ValueChangedMessage<bool>
 {
     public RefreshCalendarMessage() : base(true) { }
 }
+
+
+
+
+
+
+

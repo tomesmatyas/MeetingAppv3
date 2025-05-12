@@ -6,6 +6,7 @@ using MeetingApp.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace MeetingApp.Models.ViewModels;
 
@@ -21,7 +22,7 @@ public partial class MeetingDetailViewModel : ObservableObject
     private Meeting? selectedMeeting;
 
     [ObservableProperty]
-    private ObservableCollection<Participant> participants = new();
+    private ObservableCollection<User> participants = new();
 
     public MeetingDetailViewModel(MeetingService meetingService)
     {
@@ -36,10 +37,13 @@ public partial class MeetingDetailViewModel : ObservableObject
         var meeting = await _meetingService.GetMeetingByIdAsync(MeetingId);
         Debug.WriteLine($"Naèítám detail pro ID: {MeetingId}");
         Debug.WriteLine($"Naètený meeting: {meeting?.Title}");
+
         if (meeting != null)
         {
             SelectedMeeting = meeting;
-            Participants = new ObservableCollection<Participant>(meeting.Participants);
+            Participants = new ObservableCollection<User>(
+                meeting.Participants.Select(p => p.User)
+                                     .Where(u => u != null)!);
         }
     }
 
