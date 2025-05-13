@@ -3,39 +3,16 @@
              xmlns:vm="clr-namespace:MeetingApp.Models.ViewModels"
              x:Class="MeetingApp.Pages.MeetingDetailPage"
              x:DataType="vm:MeetingDetailViewModel"
-             Title="Detail schůzky">
+             xmlns:models="clr-namespace:MeetingApp.Models"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             Title="Detail Schůzky">
 
     <ScrollView>
         <VerticalStackLayout Padding="20">
 
-            <Label Text="Název schůzky" FontAttributes="Bold" />
-            <Entry Text="{Binding SelectedMeeting.Title}" FontSize="24" />
 
-            <Label Text="Datum" FontAttributes="Bold" />
-            <DatePicker Date="{Binding SelectedMeeting.Date}" />
-
-            <Label Text="Začátek" FontAttributes="Bold" />
-            <TimePicker Time="{Binding SelectedMeeting.StartTime}" />
-
-            <Label Text="Konec" FontAttributes="Bold" />
-            <TimePicker Time="{Binding SelectedMeeting.EndTime}" />
-
-            <Label Text="Účastníci:" FontAttributes="Bold" Margin="0,20,0,10"/>
-            <CollectionView ItemsSource="{Binding Participants}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Label Text="{Binding Name}" />
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <HorizontalStackLayout Margin="0,20,0,0" Spacing="10">
-                <Button Text="Zpět" Command="{Binding GoBackCommand}" />
-                <Button Text="Uložit" Command="{Binding SaveChangesCommand}" BackgroundColor="OrangeRed" TextColor="White"/>
-            </HorizontalStackLayout>
 
-        </VerticalStackLayout>
-    </ScrollView>
-
-
-</ContentPage>

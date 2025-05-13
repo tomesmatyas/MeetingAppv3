@@ -1,40 +1,55 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage 
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:vm="clr-namespace:MeetingApp.ViewModels"
-    x:Class="MeetingApp.Pages.AddMeetingPage"
-    Title="Přidat schůzku">
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MeetingApp.Models.ViewModels"
+             x:Class="MeetingApp.Pages.AddMeetingPage"
+             x:DataType="vm:MeetingDetailViewModel"
+             Title="Detail Schůzky">
 
+    <!--<ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="10">
-            <Label Text="Přidat schůzku" FontAttributes="Bold" FontSize="20" />
+            <Label Text="Název schůzky"/>
+            <Entry Text="{Binding SelectedMeeting.Title}" Placeholder="Zadejte název"/>
 
-            <Entry Placeholder="Název schůzky" Text="{Binding Title}" />
-            <DatePicker Date="{Binding SelectedDate}" />
-            <TimePicker Time="{Binding SelectedTime}" />
+            <Label Text="Datum"/>
+            <DatePicker Date="{Binding SelectedMeeting.Date}"/>
 
-            <HorizontalStackLayout Spacing="10">
-                <CheckBox IsChecked="{Binding IsRegular}" />
-                <Label Text="Pravidelná schůzka?" VerticalOptions="Center" />
-            </HorizontalStackLayout>
+            <Label Text="Začátek"/>
+            <TimePicker Time="{Binding SelectedMeeting.StartTime}"/>
 
-            <Label Text="Účastníci:" FontAttributes="Bold"/>
-            <CollectionView ItemsSource="{Binding Participants}">
+            <Label Text="Konec"/>
+            <TimePicker Time="{Binding SelectedMeeting.EndTime}"/>
+
+            <Label Text="Opakování"/>
+            <Picker ItemsSource="{Binding RecurrencePatterns}" 
+                    SelectedItem="{Binding SelectedMeeting.Recurrence.Pattern}" />
+
+            <Label Text="Do kdy opakovat"/>
+            <DatePicker Date="{Binding SelectedMeeting.Recurrence.EndDate}" />
+
+            --><!-- Přidání účastníka --><!--
+            <Label Text="Přidat účastníka"/>
+            <Picker ItemsSource="{Binding AllUsers}"
+                    ItemDisplayBinding="{Binding FullName}"
+                    SelectedItem="{Binding SelectedUserToAdd}"/>
+            <Button Text="Přidat" Command="{Binding AddParticipantCommand}" CommandParameter="{Binding SelectedUserToAdd}" />
+
+            --><!-- Účastníci --><!--
+            <Label Text="Účastníci" FontAttributes="Bold"/>
+            <CollectionView ItemsSource="{Binding Participants}" HeightRequest="150">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <StackLayout Orientation="Vertical" Padding="5">
-                            <Entry Placeholder="Jméno" Text="{Binding Name}" />
-                            <Entry Placeholder="Email" Text="{Binding Email}" Keyboard="Email" />
-                        </StackLayout>
+                        <Grid Padding="5" ColumnDefinitions="*,Auto">
+                            <Label Text="{Binding FullName}" FontSize="14"/>
+                            <Button Text="🗑" Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MeetingDetailViewModel}}, Path=RemoveParticipantCommand}" CommandParameter="{Binding .}" />
+                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Button Text="Přidat účastníka" Command="{Binding AddParticipantCommand}" />
-            <Button Text="Uložit schůzku" Command="{Binding AddMeetingCommand}" />
-            <Button Text="Zpět" Command="{Binding GoBackCommand}" />
+            <Button Text="Uložit změny" Command="{Binding SaveChangesCommand}"/>
+            <Button Text="Smazat schůzku" Command="{Binding DeleteMeetingCommand}" BackgroundColor="DarkRed" TextColor="White"/>
+
         </VerticalStackLayout>
-    </ScrollView>
+    </ScrollView>-->
 </ContentPage>

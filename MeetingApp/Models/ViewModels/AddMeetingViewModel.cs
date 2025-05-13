@@ -14,7 +14,7 @@ public partial class AddMeetingViewModel : ObservableObject
     public AddMeetingViewModel(MeetingService meetingService)
     {
         _meetingService = meetingService;
-        Participants = new ObservableCollection<Participant>();
+        Participants = new ObservableCollection<MeetingParticipant>();
         SelectedDate = DateTime.Today;
         SelectedTime = TimeOnly.FromDateTime(DateTime.Now);
     }
@@ -31,12 +31,12 @@ public partial class AddMeetingViewModel : ObservableObject
     [ObservableProperty]
     bool isRegular;
 
-    public ObservableCollection<Participant> Participants { get; }
+    public ObservableCollection<MeetingParticipant> Participants { get; }
 
     [RelayCommand]
     void AddParticipant()
     {
-        Participants.Add(new Participant());
+        Participants.Add(new MeetingParticipant());
     }
 
     [RelayCommand]
