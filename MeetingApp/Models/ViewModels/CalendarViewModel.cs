@@ -1,12 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using MeetingApp.Models;
+using MeetingApp.Models.Dtos;
 using MeetingApp.Pages;
 using MeetingApp.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-
 
 namespace MeetingApp.Models.ViewModels;
 
@@ -14,20 +13,11 @@ public partial class CalendarViewModel : ObservableObject
 {
     private readonly MeetingService _meetingService;
 
-    [ObservableProperty]
-    private DateTime _selectedDate = DateTime.Today;
-
-    [ObservableProperty]
-    private ObservableCollection<Meeting> _meetings = new();
-
-    [ObservableProperty]
-    private DateTime _currentWeekStart = DateTime.Today.StartOfWeek(DayOfWeek.Monday);
-
-    [ObservableProperty]
-    private ObservableCollection<DayModel> _days = new();
-
-    [ObservableProperty]
-    private string _weekRange = string.Empty;
+    [ObservableProperty] private DateTime selectedDate = DateTime.Today;
+    [ObservableProperty] private ObservableCollection<MeetingDto> meetings = new();
+    [ObservableProperty] private DateTime currentWeekStart = DateTime.Today.StartOfWeek(DayOfWeek.Monday);
+    [ObservableProperty] private ObservableCollection<DayModel> days = new();
+    [ObservableProperty] private string weekRange = string.Empty;
 
     public CalendarViewModel(MeetingService meetingService)
     {
@@ -38,18 +28,13 @@ public partial class CalendarViewModel : ObservableObject
     {
         try
         {
-            var meetings = await _meetingService.GetMeetingsAsync();
-            if (meetings != null)
-            {
-                Meetings.Clear();
-                Debug.WriteLine("Načtené schůzky:");
-                foreach (var meeting in meetings)
-                {
-                    Debug.WriteLine($"  - {meeting.Title} na {meeting.Date:dd.MM.yyyy}");
-                    Meetings.Add(meeting);
-                }
+            var list = await _meetingService.GetMeetingsAsync();
+            Meetings = new ObservableCollection<MeetingDto>(list);
 
-            }
+            Debug.WriteLine("Načtené schůzky:");
+            foreach (var meeting in Meetings)
+                Debug.WriteLine($"  - {meeting.Title} na {meeting.Date:dd.MM.yyyy}");
+
             UpdateCalendar();
         }
         catch (Exception ex)
@@ -58,18 +43,12 @@ public partial class CalendarViewModel : ObservableObject
         }
     }
 
-
-
-
-
     private void UpdateCalendar()
     {
         var newDays = new ObservableCollection<DayModel>();
         Days.Clear();
 
         var allMeetings = Meetings.ToList();
-
-        // Přidat instance opakujících se schůzek pro aktuální týden
         var recurringInstances = GenerateRecurringMeetingsForWeek(CurrentWeekStart);
         allMeetings.AddRange(recurringInstances);
 
@@ -80,23 +59,18 @@ public partial class CalendarViewModel : ObservableObject
         for (int i = 0; i < 7; i++)
         {
             var day = CurrentWeekStart.AddDays(i);
-            var meetingsForDay = allMeetings.Where(m => m.Date.Date == day.Date);
             var displays = new ObservableCollection<MeetingDisplay>();
 
-            foreach (var meeting in meetingsForDay)
+            foreach (var meeting in allMeetings.Where(m => m.Date.Date == day.Date))
             {
-                var start = meeting.StartTime;
-                var end = meeting.EndTime;
+                int gridRow = Math.Max(0, (int)((meeting.StartTime.TotalMinutes - baseMinutes) / blockMinutes));
+                int rowSpan = Math.Max(1, (int)((meeting.EndTime - meeting.StartTime).TotalMinutes / blockMinutes));
 
-                int gridRow = Math.Max(0, (int)((start.TotalMinutes - baseMinutes) / blockMinutes));
-                int rowSpan = Math.Max(1, (int)((end - start).TotalMinutes / blockMinutes));
                 displays.Add(new MeetingDisplay
                 {
                     Meeting = meeting,
-                    Title = meeting.Title,
                     GridRow = gridRow,
-                    RowSpan = rowSpan,
-                    ColorHex = string.IsNullOrEmpty(meeting.ColorHex) ? "#FF6600" : meeting.ColorHex
+                    RowSpan = rowSpan
                 });
             }
 
@@ -113,22 +87,20 @@ public partial class CalendarViewModel : ObservableObject
         WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
     }
 
-    // Vygeneruj virtuální instance pro týden
-    private List<Meeting> GenerateRecurringMeetingsForWeek(DateTime weekStart)
+    private List<MeetingDto> GenerateRecurringMeetingsForWeek(DateTime weekStart)
     {
-        var result = new List<Meeting>();
+        var result = new List<MeetingDto>();
         var weekEnd = weekStart.AddDays(7);
 
         foreach (var m in Meetings.Where(m => m.IsRegular && m.Recurrence != null))
         {
             var recurrence = m.Recurrence!;
-            var pattern = recurrence.Pattern;
-            var interval = recurrence.Interval;
-            var endDate = m.EndDate ?? weekEnd;
-
             var originalDate = m.Date;
+            var endDate = m.EndDate ?? weekEnd;
+            var interval = recurrence.Interval;
+            var pattern = recurrence.Pattern;
 
-            DateTime dateIterator = recurrence.Pattern switch
+            DateTime dateIterator = pattern switch
             {
                 "Weekly" => originalDate.StartOfWeek(DayOfWeek.Monday),
                 "Monthly" => new DateTime(originalDate.Year, originalDate.Month, 1),
@@ -139,10 +111,14 @@ public partial class CalendarViewModel : ObservableObject
             {
                 if (dateIterator >= weekStart && dateIterator <= endDate)
                 {
-                    // ověřit, zda má být tento den instancí
-                    if (pattern == "Weekly" && (dateIterator - originalDate).Days % (7 * interval) == 0)
+                    bool isValid =
+                        (pattern == "Weekly" && (dateIterator - originalDate).Days % (7 * interval) == 0) ||
+                        (pattern == "Monthly" && originalDate.Day == dateIterator.Day &&
+                         ((dateIterator.Year - originalDate.Year) * 12 + dateIterator.Month - originalDate.Month) % interval == 0);
+
+                    if (isValid)
                     {
-                        var inst = new Meeting
+                        result.Add(new MeetingDto
                         {
                             Id = m.Id,
                             Title = m.Title,
@@ -153,30 +129,11 @@ public partial class CalendarViewModel : ObservableObject
                             IsRegular = m.IsRegular,
                             RecurrenceId = m.RecurrenceId,
                             Recurrence = m.Recurrence,
-                            Participants = m.Participants
-                        };
-                        result.Add(inst);
-                    }
-                    else if (pattern == "Monthly" && originalDate.Day == dateIterator.Day)
-                    {
-                        var monthsBetween = ((dateIterator.Year - originalDate.Year) * 12) + dateIterator.Month - originalDate.Month;
-                        if (monthsBetween % interval == 0)
-                        {
-                            var inst = new Meeting
-                            {
-                                Id = m.Id,
-                                Title = m.Title,
-                                Date = dateIterator,
-                                StartTime = m.StartTime,
-                                EndTime = m.EndTime,
-                                ColorHex = m.ColorHex,
-                                IsRegular = m.IsRegular,
-                                RecurrenceId = m.RecurrenceId,
-                                Recurrence = m.Recurrence,
-                                Participants = m.Participants
-                            };
-                            result.Add(inst);
-                        }
+                            Participants = m.Participants,
+                            CreatedByUserId = m.CreatedByUserId,
+                            CreatedByUser = m.CreatedByUser,
+                            EndDate = m.EndDate
+                        });
                     }
                 }
                 dateIterator = dateIterator.AddDays(1);
@@ -186,14 +143,12 @@ public partial class CalendarViewModel : ObservableObject
         return result;
     }
 
-
     [RelayCommand]
     public void OnPreviousWeekClicked()
     {
         CurrentWeekStart = CurrentWeekStart.AddDays(-7);
         UpdateCalendar();
         WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
-
     }
 
     [RelayCommand]
@@ -202,7 +157,6 @@ public partial class CalendarViewModel : ObservableObject
         CurrentWeekStart = CurrentWeekStart.AddDays(7);
         UpdateCalendar();
         WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
-
     }
 
     [RelayCommand]

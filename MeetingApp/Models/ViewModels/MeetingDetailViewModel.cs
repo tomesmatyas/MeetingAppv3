@@ -1,14 +1,13 @@
+// MeetingDetailViewModel.cs - updated to use DTOs
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using MeetingApp.Models;
+using MeetingApp.Models.Dtos;
 using MeetingApp.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace MeetingApp.Models.ViewModels;
 
@@ -18,8 +17,8 @@ public partial class MeetingDetailViewModel : ObservableObject
     private readonly MeetingService _meetingService;
 
     [ObservableProperty] private int meetingId;
-    [ObservableProperty] private Meeting? selectedMeeting;
-    [ObservableProperty] private ObservableCollection<User> participants = new();
+    [ObservableProperty] private MeetingDto? selectedMeeting;
+    [ObservableProperty] private ObservableCollection<UserDto> participants = new();
     [ObservableProperty] private string? title;
     [ObservableProperty] private DateTime date;
     [ObservableProperty] private TimeSpan startTime;
@@ -27,10 +26,11 @@ public partial class MeetingDetailViewModel : ObservableObject
     [ObservableProperty] private string pattern = "None";
     [ObservableProperty] private DateTime? endDate;
     [ObservableProperty] private string fullname = "None";
-    [ObservableProperty] private ObservableCollection<User> allUsers = new();
-    [ObservableProperty] private User? selectedUserToAdd;
+    [ObservableProperty] private ObservableCollection<UserDto> allUsers = new();
+    [ObservableProperty] private UserDto? selectedUserToAdd;
     [ObservableProperty] private string searchText;
-    [ObservableProperty] private ObservableCollection<User> filteredUsers = new();
+    [ObservableProperty] private ObservableCollection<UserDto> filteredUsers = new();
+
     private bool _isInitializing = true;
 
     public List<string> RecurrencePatterns => new() { "None", "Weekly", "Monthly" };
@@ -45,75 +45,57 @@ public partial class MeetingDetailViewModel : ObservableObject
         if (MeetingId <= 0) return;
 
         var meeting = await _meetingService.GetMeetingByIdAsync(MeetingId);
-        Debug.WriteLine($"[LoadAsync] načítaní: {meeting}");
+        Debug.WriteLine($"Načtená schůzka: {meeting.Title} na {meeting.Date:dd.MM.yyyy}");
         if (meeting != null)
         {
             _isInitializing = true;
+
             SelectedMeeting = meeting;
             Title = meeting.Title;
             Date = meeting.Date;
             StartTime = meeting.StartTime;
             EndTime = meeting.EndTime;
             Pattern = meeting.Recurrence?.Pattern ?? "None";
-            EndDate = meeting.EndDate ?? DateTime.Today.AddMonths(1);
-            _isInitializing = false;
+            EndDate = meeting.EndDate;
 
-            var validParticipants = meeting.Participants?
-                .Where(p => p?.User != null)
-                .Select(p => p.User!)
-                .ToList() ?? new List<User>();
-
-            Participants = new ObservableCollection<User>(validParticipants);
-
+            Participants = new ObservableCollection<UserDto>(meeting.Participants);
+            Debug.WriteLine($"Načtená schůzka: {meeting.Title} na {meeting.Date:dd.MM.yyyy}");
             var all = await _meetingService.GetAllUsersAsync();
-            var existingIds = validParticipants.Select(p => p.Id).ToHashSet();
-            AllUsers = new ObservableCollection<User>(all.Where(u => !existingIds.Contains(u.Id)));
-            Debug.WriteLine($"[LoadAsync] AllUsers count: {AllUsers.Count}");
-            foreach (var u in AllUsers)
-                Debug.WriteLine($"[LoadAsync] User: {u.FullName}");
+            var existingIds = meeting.Participants.Select(p => p.Id).ToHashSet();
+            AllUsers = new ObservableCollection<UserDto>(all.Where(u => !existingIds.Contains(u.Id)));
+
+            _isInitializing = false;
         }
     }
 
     partial void OnSearchTextChanged(string value)
     {
-        Debug.WriteLine($"[Search] hledám: {value}");
-
         if (string.IsNullOrWhiteSpace(value))
         {
-            FilteredUsers = new ObservableCollection<User>(AllUsers);
-            Debug.WriteLine("[Search] Výchozí filtr - všichni uživatelé:");
-            foreach (var u in FilteredUsers)
-                Debug.WriteLine($"→ {u.FullName}");
+            FilteredUsers = new ObservableCollection<UserDto>(AllUsers);
             return;
         }
 
-        var results = AllUsers
-            .Where(u => u.FullName.Contains(value, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-        FilteredUsers = new ObservableCollection<User>(results);
-        Debug.WriteLine($"[Search] Výsledků: {results.Count}");
-        foreach (var u in results)
-            Debug.WriteLine($"→ {u.FullName}");
+        FilteredUsers = new ObservableCollection<UserDto>(
+            AllUsers.Where(u => ($"{u.FirstName} {u.LastName}").Contains(value, StringComparison.OrdinalIgnoreCase)));
     }
 
     [RelayCommand]
-    private async Task SelectUser(User user)
+    private async Task SelectUser(UserDto user)
     {
-        if (user != null && !Participants.Any(p => p.Id == user.Id))
+        if (!Participants.Any(p => p.Id == user.Id))
         {
             Participants.Add(user);
             AllUsers.Remove(user);
             FilteredUsers.Clear();
             SearchText = string.Empty;
 
-            var participant = new MeetingParticipant { MeetingId = MeetingId, UserId = user.Id };
-            await _meetingService.AddParticipantAsync(MeetingId, participant);
+            await _meetingService.AddParticipantAsync(MeetingId, user.Id);
         }
     }
 
     [RelayCommand]
-    public async Task RemoveParticipantAsync(User user)
+    public async Task RemoveParticipantAsync(UserDto user)
     {
         await _meetingService.RemoveParticipantAsync(MeetingId, user.Id);
         Participants.Remove(user);
@@ -124,66 +106,44 @@ public partial class MeetingDetailViewModel : ObservableObject
 
     [RelayCommand]
     public async Task SaveChangesAsync()
-        {
+    {
         if (SelectedMeeting == null) return;
 
-        if (Pattern == "None")
+        SelectedMeeting.Title = Title;
+        SelectedMeeting.Date = Date;
+        SelectedMeeting.StartTime = StartTime;
+        SelectedMeeting.EndTime = EndTime;
+        SelectedMeeting.IsRegular = Pattern != "None";
+        SelectedMeeting.EndDate = EndDate;
+
+        if (SelectedMeeting.IsRegular)
         {
-            SelectedMeeting.IsRegular = false;
-            SelectedMeeting.Recurrence = null;
-            SelectedMeeting.EndDate = DateTime.Today;
+            SelectedMeeting.Recurrence ??= new MeetingRecurrenceDto();
+            SelectedMeeting.Recurrence.Pattern = Pattern;
+            SelectedMeeting.Recurrence.Interval = 1;
         }
         else
         {
-            SelectedMeeting.IsRegular = true;
-            if (SelectedMeeting.Recurrence == null)
-                SelectedMeeting.Recurrence = new MeetingRecurrence();
-
-            SelectedMeeting.Recurrence.Pattern = Pattern;
-            SelectedMeeting.Recurrence.Interval = 1;
-            SelectedMeeting.EndDate = EndDate;
+            SelectedMeeting.Recurrence = null;
         }
 
-        // ⛔ Zabrání nekonečné rekurzi při serializaci JSON
-        if (SelectedMeeting?.Recurrence?.Meetings != null)
-            SelectedMeeting.Recurrence.Meetings = null;
-
-        var meetingJson = JsonSerializer.Serialize(SelectedMeeting, new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            ReferenceHandler = ReferenceHandler.Preserve
-        });
-
-        Debug.WriteLine($"[SaveAsync] Recurence: {meetingJson}");
-
-        var success = await _meetingService.UpdateMeetingAsync(SelectedMeeting);
-        if (success)
-        {
-            WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
-        }
+        await _meetingService.UpdateMeetingAsync(SelectedMeeting);
     }
-
-    [ObservableProperty] private bool showEndDate = false;
 
     partial void OnPatternChanged(string value)
     {
         if (_isInitializing) return;
-        if (value == "None")
-        {
-            EndDate = DateTime.Today;
-        }
-        else
-        {
-            var today = DateTime.Today;
-            EndDate = value == "Weekly" ? today.AddMonths(1) : today.AddMonths(2);
 
-            if (EndDate <= today)
-            {
-                Shell.Current.DisplayAlert("Neplatné datum", "Zadejte datum v budoucnosti.", "OK");
-                EndDate = today.AddDays(7);
-            }
-        }
+        var today = DateTime.Today;
+        EndDate = value switch
+        {
+            "Weekly" => today.AddMonths(1),
+            "Monthly" => today.AddMonths(2),
+            _ => today
+        };
+
+        if (EndDate <= today)
+            EndDate = today.AddDays(7);
 
         SaveChangesAsync();
     }
@@ -192,14 +152,6 @@ public partial class MeetingDetailViewModel : ObservableObject
     {
         if (_isInitializing) return;
         SaveChangesAsync();
-    }
-
-    private void ValidateEndDate(DateTime selected)
-    {
-        if (selected <= DateTime.Today)
-        {
-            Shell.Current.DisplayAlert("Chyba", "Datum, do kdy se má schůzka, musí být později než dnešní!", "OK");
-        }
     }
 
     [RelayCommand]
@@ -227,21 +179,9 @@ public partial class MeetingDetailViewModel : ObservableObject
     {
         if (SelectedUserToAdd == null) return;
 
-        var participant = new MeetingParticipant
-        {
-            MeetingId = MeetingId,
-            UserId = SelectedUserToAdd.Id,
-            User = SelectedUserToAdd
-        };
-
-        await _meetingService.AddParticipantAsync(MeetingId, participant);
+        await _meetingService.AddParticipantAsync(MeetingId, SelectedUserToAdd.Id);
 
         if (!Participants.Any(p => p.Id == SelectedUserToAdd.Id))
             Participants.Add(SelectedUserToAdd);
     }
-}
-
-public static class RecurrencePatterns
-{
-    public static readonly List<string> All = new() { "None", "Weekly", "Monthly" };
 }

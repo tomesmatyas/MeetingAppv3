@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MeetingApp.Models.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -42,7 +43,7 @@ namespace MeetingApp.Models
     }
     public class MeetingDisplay
     {
-        public Meeting Meeting { get; set; } = default!;
+        public MeetingDto Meeting { get; set; } = default!;
         public string Title { get; set; } = "";
         public TimeSpan StartTime => Meeting.StartTime;
         public TimeSpan EndTime => Meeting.EndTime;

@@ -52,7 +52,7 @@ public partial class AddMeetingViewModel : ObservableObject
             Participants = Participants.ToList()
         };
 
-        var success = await _meetingService.AddMeetingAsync(meeting);
+        var success=false;// = await_meetingService.AddMeetingAsync(meeting);
 
         if (success)
         {

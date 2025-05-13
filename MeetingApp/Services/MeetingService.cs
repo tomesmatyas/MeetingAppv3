@@ -5,7 +5,7 @@ using System.Net.Http.Json;
 using Newtonsoft.Json;
 using MeetingApp.Services;
 using CommunityToolkit.Mvvm.Messaging.Messages;
-using MeetingAPI.Models.Dtos;
+using MeetingApp.Models.Dtos;
 
 namespace MeetingApp.Services;
 
@@ -154,6 +154,50 @@ public class MeetingService
 
         return new();
     }
+    public async Task SyncPendingChangesAsync()
+    {
+        if (!Connectivity.NetworkAccess.HasFlag(NetworkAccess.Internet))
+            return;
+
+        var pendingMeetings = await _localStorage.LoadPendingMeetingsAsync();
+        foreach (var meeting in pendingMeetings.ToList())
+        {
+            try
+            {
+                HttpResponseMessage response;
+                if (meeting.Id == 0)
+                    response = await _httpClient.PostAsJsonAsync("/api/meetings", meeting);
+                else
+                    response = await _httpClient.PutAsJsonAsync($"/api/meetings/{meeting.Id}", meeting);
+
+                if (response.IsSuccessStatusCode)
+                    await _localStorage.RemovePendingMeetingAsync(meeting);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Sync schůzky selhala: {ex.Message}");
+            }
+        }
+
+        var pendingParticipants = await _localStorage.LoadPendingParticipantsAsync();
+        foreach (var kvp in pendingParticipants.ToList())
+        {
+            foreach (var participant in kvp.Value.ToList())
+            {
+                try
+                {
+                    var response = await _httpClient.PostAsJsonAsync($"/api/meetings/{kvp.Key}/participants", participant);
+                    if (response.IsSuccessStatusCode)
+                        await _localStorage.RemovePendingParticipantAsync(kvp.Key, participant);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Sync účastníka selhala: {ex.Message}");
+                }
+            }
+        }
+    }
+
 }
 
 public class RefreshCalendarMessage : ValueChangedMessage<bool>

@@ -52,7 +52,7 @@ namespace MeetingApp.ViewModels
                 {
                     foreach (var meeting in meetings)
                     {
-                        Meetings.Add(meeting);
+                       // Meetings.Add(meeting);
                     }
                 }
             }
@@ -90,7 +90,7 @@ namespace MeetingApp.ViewModels
                     IsRegular = NewMeetingIsRegular
                 };
 
-                var result = await _meetingService.AddMeetingAsync(newMeeting);
+                var result=false; //= await _meetingService.AddMeetingAsync(newMeeting);
                 if (result)
                 {
                     // Po úspìšném pøidání schùzky obnovíme seznam.

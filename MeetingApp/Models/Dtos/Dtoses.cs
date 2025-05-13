@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MeetingAPI.Models.Dtos;
+namespace MeetingApp.Models.Dtos;
 
 public class UserDto
 {
