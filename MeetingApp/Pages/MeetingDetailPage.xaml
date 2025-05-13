@@ -8,64 +8,11 @@
              Title="Detail Schůzky">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
+        <VerticalStackLayout Padding="20">
 
-            <Label Text="Název schůzky"/>
-            <Entry Text="{Binding SelectedMeeting.Title}" Placeholder="Zadejte název"/>
 
-            <Label Text="Datum"/>
-            <DatePicker Date="{Binding SelectedMeeting.Date}"/>
-
-            <Label Text="Začátek"/>
-            <TimePicker Time="{Binding SelectedMeeting.StartTime}" />
-
-            <Label Text="Konec"/>
-            <TimePicker Time="{Binding SelectedMeeting.EndTime}"/>
-
-            <Label Text="Opakování"/>
-            <Picker ItemsSource="{Binding RecurrencePatterns}"
-                    SelectedItem="{Binding Pattern}" />
-
-            <Label Text="Do kdy opakovat"/>
-            <DatePicker Date="{Binding EndDate}"
-                        MinimumDate="{x:Static sys:DateTime.Today}" />
-
-            <!-- Přidání účastníka -->
-            <SearchBar Text="{Binding SearchText}"
-                       Placeholder="Hledat účastníka..." />
-            <CollectionView ItemsSource="{Binding FilteredUsers}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:User">
-                        <Label Text="{Binding FullName}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MeetingDetailViewModel}}, Path=SelectUserCommand}"
-                                    CommandParameter="{Binding .}" />
-                            </Label.GestureRecognizers>
-                        </Label>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-            <!-- Účastníci -->
-            <Label Text="Účastníci" FontAttributes="Bold"/>
-            <CollectionView ItemsSource="{Binding Participants}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:User">
-                        <Grid Padding="5" ColumnDefinitions="*,*,Auto">
-                            <Label Text="{Binding FirstName}" Grid.Column="0"/>
-                            <Label Text="{Binding Email}" Grid.Column="1"/>
-                            <Button Text="🗑"
-                        Grid.Column="2"
-                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MeetingDetailViewModel}}, Path=RemoveParticipantCommand}"
-                        CommandParameter="{Binding .}" />
-                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Button Text="Uložit změny" Command="{Binding SaveChangesCommand}"/>
-            <Button Text="Smazat schůzku" Command="{Binding DeleteMeetingCommand}" BackgroundColor="DarkRed" TextColor="White"/>
 
-        </VerticalStackLayout>
-    </ScrollView>
-</ContentPage>
