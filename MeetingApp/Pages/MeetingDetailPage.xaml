@@ -3,42 +3,68 @@
              xmlns:vm="clr-namespace:MeetingApp.Models.ViewModels"
              x:Class="MeetingApp.Pages.MeetingDetailPage"
              x:DataType="vm:MeetingDetailViewModel"
-             Title="Detail schůzky">
+             xmlns:models="clr-namespace:MeetingApp.Models"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             Title="Detail Schůzky">
 
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="15">
 
-            <Label Text="Název schůzky" FontAttributes="Bold" />
-            <Entry Text="{Binding SelectedMeeting.Title}" FontSize="20" />
+            <Label Text="Název schůzky"/>
+            <Entry Text="{Binding SelectedMeeting.Title}" Placeholder="Zadejte název"/>
 
-            <Label Text="Datum" FontAttributes="Bold" />
-            <DatePicker Date="{Binding SelectedMeeting.Date}" />
+            <Label Text="Datum"/>
+            <DatePicker Date="{Binding SelectedMeeting.Date}"/>
 
-            <Label Text="Začátek" FontAttributes="Bold" />
+            <Label Text="Začátek"/>
             <TimePicker Time="{Binding SelectedMeeting.StartTime}" />
 
-            <Label Text="Konec" FontAttributes="Bold" />
-            <TimePicker Time="{Binding SelectedMeeting.EndTime}" />
+            <Label Text="Konec"/>
+            <TimePicker Time="{Binding SelectedMeeting.EndTime}"/>
 
-            <Label Text="Účastníci:" FontAttributes="Bold" Margin="0,20,0,5"/>
+            <Label Text="Opakování"/>
+            <Picker ItemsSource="{Binding RecurrencePatterns}"
+                    SelectedItem="{Binding Pattern}" />
+
+            <Label Text="Do kdy opakovat"/>
+            <DatePicker Date="{Binding EndDate}"
+                        MinimumDate="{x:Static sys:DateTime.Today}" />
+
+            <!-- Přidání účastníka -->
+            <SearchBar Text="{Binding SearchText}"
+                       Placeholder="Hledat účastníka..." />
+            <CollectionView ItemsSource="{Binding FilteredUsers}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:User">
+                        <Label Text="{Binding FullName}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MeetingDetailViewModel}}, Path=SelectUserCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <!-- Účastníci -->
+            <Label Text="Účastníci" FontAttributes="Bold"/>
             <CollectionView ItemsSource="{Binding Participants}">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Border Stroke="#CCC" StrokeThickness="1" Padding="5" Margin="2">
-                            <VerticalStackLayout>
-                                <Label Text="{Binding Username}" FontAttributes="Bold" />
-                                <Label Text="{Binding Email}" FontSize="12" TextColor="Gray" />
-                            </VerticalStackLayout>
-                        </Border>
+                    <DataTemplate x:DataType="models:User">
+                        <Grid Padding="5" ColumnDefinitions="*,*,Auto">
+                            <Label Text="{Binding FirstName}" Grid.Column="0"/>
+                            <Label Text="{Binding Email}" Grid.Column="1"/>
+                            <Button Text="🗑"
+                        Grid.Column="2"
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MeetingDetailViewModel}}, Path=RemoveParticipantCommand}"
+                        CommandParameter="{Binding .}" />
+                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <HorizontalStackLayout Margin="0,20,0,0" Spacing="10">
-                <Button Text="Zpět" Command="{Binding GoBackCommand}" />
-                <Button Text="Uložit" Command="{Binding SaveChangesCommand}"
-                        BackgroundColor="OrangeRed" TextColor="White"/>
-            </HorizontalStackLayout>
+            <Button Text="Uložit změny" Command="{Binding SaveChangesCommand}"/>
+            <Button Text="Smazat schůzku" Command="{Binding DeleteMeetingCommand}" BackgroundColor="DarkRed" TextColor="White"/>
 
         </VerticalStackLayout>
     </ScrollView>

@@ -1,9 +1,9 @@
+
 using MeetingApp.Models;
 using System.Diagnostics;
 using System.Net.Http.Json;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using MeetingApp.Services;
-using System.Text.Json;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace MeetingApp.Services;
@@ -30,26 +30,32 @@ public class MeetingService
                 var json = await response.Content.ReadAsStringAsync();
                 Debug.WriteLine(json);
 
-                var options = new JsonSerializerOptions
+                var settings = new JsonSerializerSettings
                 {
-                    PropertyNameCaseInsensitive = true,
-                    ReferenceHandler = ReferenceHandler.Preserve
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                    Formatting = Formatting.None
                 };
 
-                var meetings = JsonSerializer.Deserialize<List<Meeting>>(json, options);
+                var meetings = JsonConvert.DeserializeObject<List<Meeting>>(json, settings);
 
                 if (meetings != null)
                 {
+                    foreach (var meeting in meetings)
+                    {
+                        meeting.IsRegular = meeting.Recurrence != null;
+                        meeting.RecurrenceId = meeting.Recurrence?.Id;
+                    }
+
                     var expanded = ExpandRecurringMeetings(meetings);
                     await _localStorage.SaveMeetingsAsync(expanded);
-                    Debug.WriteLine("---------------!Schuzky se nacetly a ulozily offline!--------------");
                     return expanded;
                 }
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Offline rezim aktivovan: {ex.Message}");
+            Debug.WriteLine($"Offline režim aktivován: {ex.Message}");
         }
 
         return await _localStorage.LoadMeetingsAsync();
@@ -70,10 +76,10 @@ public class MeetingService
             }
 
             var rec = m.Recurrence;
-            var endDate = rec.EndDate ?? rangeEnd;
+            var endDate = m.EndDate ?? rangeEnd;
             var current = m.Date;
-
             var instanceDate = rangeStart;
+
             while (instanceDate <= rangeEnd && instanceDate <= endDate)
             {
                 if (rec.Pattern == "Weekly" && (instanceDate - current).Days % (7 * rec.Interval) == 0)
@@ -117,6 +123,11 @@ public class MeetingService
     {
         try
         {
+            if (meeting.IsRegular && meeting.Recurrence != null && meeting.EndDate == null)
+            {
+                meeting.EndDate = DateTime.Now.AddMonths(6);
+            }
+
             var response = await _httpClient.PostAsJsonAsync("/api/meetings", meeting);
             if (response.IsSuccessStatusCode)
             {
@@ -125,7 +136,7 @@ public class MeetingService
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[Offline] Chyba pri odesilani schuzky: {ex.Message}");
+            Debug.WriteLine($"[Offline] Chyba pøi odesílání schùzky: {ex.Message}");
         }
 
         var offlineMeetings = await _localStorage.LoadMeetingsAsync();
@@ -139,13 +150,26 @@ public class MeetingService
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync($"/api/meetings/{meetingId}/participants", participant);
-            response.EnsureSuccessStatusCode();
+            var payload = new { userId = participant.UserId };
+            await _httpClient.PostAsJsonAsync($"/api/meetings/{meetingId}/participants", payload);
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"[Offline] Chyba pøi pøidávání úèastníka: {ex.Message}");
             await _localStorage.SavePendingParticipantAsync(meetingId, participant);
+        }
+    }
+
+    public async Task RemoveParticipantAsync(int meetingId, int userId)
+    {
+        try
+        {
+            var response = await _httpClient.DeleteAsync($"/api/meetings/{meetingId}/users/{userId}");
+            response.EnsureSuccessStatusCode();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Chyba pøi odebírání úèastníka: {ex.Message}");
         }
     }
 
@@ -158,7 +182,7 @@ public class MeetingService
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Chyba pri mazani: {ex.Message}");
+            Debug.WriteLine($"Chyba pøi mazání: {ex.Message}");
             return false;
         }
     }
@@ -167,9 +191,13 @@ public class MeetingService
     {
         try
         {
+            if (meeting.IsRegular && meeting.Recurrence != null && meeting.EndDate == null)
+            {
+                meeting.EndDate = DateTime.Now.AddMonths(6);
+            }
+
             var response = await _httpClient.PutAsJsonAsync($"/api/meetings/{meeting.Id}", meeting);
-            if (response.IsSuccessStatusCode)
-                return true;
+            return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
         {
@@ -178,6 +206,33 @@ public class MeetingService
 
         await _localStorage.UpdateMeetingAsync(meeting);
         return true;
+    }
+
+    public async Task<List<User>> GetAllUsersAsync()
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync("/api/users");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var users = JsonConvert.DeserializeObject<List<User>>(json);
+
+                if (users != null)
+                {
+                    var nonAdmins = users.Where(u => !u.IsAdmin).ToList();
+                    await _localStorage.SaveUsersAsync(nonAdmins);
+                    return nonAdmins;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[Offline] Chyba pøi naèítání uživatelù: {ex.Message}");
+        }
+
+        var offlineUsers = await _localStorage.LoadUsersAsync();
+        return offlineUsers.Where(u => !u.IsAdmin).ToList();
     }
 
     public async Task SyncPendingChangesAsync()
@@ -232,11 +287,7 @@ public class MeetingService
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Meeting>(json, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    ReferenceHandler = ReferenceHandler.Preserve
-                });
+                return JsonConvert.DeserializeObject<Meeting>(json);
             }
         }
         catch (Exception ex)
@@ -249,16 +300,7 @@ public class MeetingService
     }
 }
 
-
-
 public class RefreshCalendarMessage : ValueChangedMessage<bool>
 {
     public RefreshCalendarMessage() : base(true) { }
 }
-
-
-
-
-
-
-

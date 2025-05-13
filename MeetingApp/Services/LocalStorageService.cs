@@ -21,22 +21,61 @@ namespace MeetingApp.Services
         Task ClearPendingMeetingsAsync();
         Task RemovePendingMeetingAsync(Meeting meeting);
         Task RemovePendingParticipantAsync(int meetingId, MeetingParticipant participant);
+
+        Task SaveUsersAsync(List<User> users);
+        Task<List<User>> LoadUsersAsync();
     }
 
     public class LocalStorageService : ILocalStorageService
     {
         private readonly string _filePath;
+        private readonly string _usersFilePath;
 
         public LocalStorageService()
         {
             var folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             _filePath = Path.Combine(folder, "meetings.json");
+            _usersFilePath = Path.Combine(folder, "users.json");
         }
 
         private readonly string _pendingFilePath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "pending_participants.json"
         );
+
+        public async Task SaveUsersAsync(List<User> users)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(users, new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+                await File.WriteAllTextAsync(_usersFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Chyba při ukládání uživatelů: {ex.Message}");
+            }
+        }
+
+        public async Task<List<User>> LoadUsersAsync()
+        {
+            try
+            {
+                if (!File.Exists(_usersFilePath))
+                    return new List<User>();
+
+                var json = await File.ReadAllTextAsync(_usersFilePath);
+                return JsonSerializer.Deserialize<List<User>>(json) ?? new List<User>();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Chyba při čtení uživatelů: {ex.Message}");
+                return new List<User>();
+            }
+        }
 
         public async Task SavePendingParticipantAsync(int meetingId, MeetingParticipant participant)
         {
