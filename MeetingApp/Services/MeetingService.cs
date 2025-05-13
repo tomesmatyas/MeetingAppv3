@@ -47,9 +47,8 @@ public class MeetingService
                         meeting.RecurrenceId = meeting.Recurrence?.Id;
                     }
 
-                    var expanded = ExpandRecurringMeetings(meetings);
-                    await _localStorage.SaveMeetingsAsync(expanded);
-                    return expanded;
+                    await _localStorage.SaveMeetingsAsync(meetings);
+                    return meetings;
                 }
             }
         }
