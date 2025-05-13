@@ -31,6 +31,7 @@ public partial class MeetingDetailViewModel : ObservableObject
     [ObservableProperty] private User? selectedUserToAdd;
     [ObservableProperty] private string searchText;
     [ObservableProperty] private ObservableCollection<User> filteredUsers = new();
+    private bool _isInitializing = true;
 
     public List<string> RecurrencePatterns => new() { "None", "Weekly", "Monthly" };
 
@@ -41,46 +42,21 @@ public partial class MeetingDetailViewModel : ObservableObject
 
     public async Task LoadAsync()
     {
-        Debug.WriteLine("Otevírám stránku s detailem");
         if (MeetingId <= 0) return;
 
         var meeting = await _meetingService.GetMeetingByIdAsync(MeetingId);
-        Debug.WriteLine($"Načítám detail pro ID: {MeetingId}");
-        Debug.WriteLine($"Načtený meeting: {meeting?.Title}");
-
+        Debug.WriteLine($"[LoadAsync] načítaní: {meeting}");
         if (meeting != null)
         {
+            _isInitializing = true;
             SelectedMeeting = meeting;
             Title = meeting.Title;
             Date = meeting.Date;
             StartTime = meeting.StartTime;
             EndTime = meeting.EndTime;
             Pattern = meeting.Recurrence?.Pattern ?? "None";
-            EndDate = meeting.EndDate ?? null;
-
-            Participants = new ObservableCollection<User>(
-                meeting.Participants?
-                    .Where(p => p?.User != null)
-                    .Select(p => p.User!) ?? Enumerable.Empty<User>());
-
-            Debug.WriteLine("Účastníci:");
-            foreach (var p in meeting.Participants ?? Enumerable.Empty<MeetingParticipant>())
-            {
-                if (p?.User != null)
-                {
-                    Debug.WriteLine($"{p.User.FirstName} {p.User.LastName}");
-                    Debug.WriteLine($"{p.User.Email}");
-                }
-                else
-                {
-                    Debug.WriteLine("Nepřiřazený uživatel");
-                }
-            }
-
-
-            var all = await _meetingService.GetAllUsersAsync();
-            Debug.WriteLine($"[AllUsers] načteno ze serveru: {all.Count}");
-            Debug.WriteLine($"Recurrence: {meeting.Recurrence?.Pattern}, EndDate: {meeting.EndDate}");
+            EndDate = meeting.EndDate ?? DateTime.Today.AddMonths(1);
+            _isInitializing = false;
 
             var validParticipants = meeting.Participants?
                 .Where(p => p?.User != null)
@@ -89,23 +65,36 @@ public partial class MeetingDetailViewModel : ObservableObject
 
             Participants = new ObservableCollection<User>(validParticipants);
 
+            var all = await _meetingService.GetAllUsersAsync();
             var existingIds = validParticipants.Select(p => p.Id).ToHashSet();
             AllUsers = new ObservableCollection<User>(all.Where(u => !existingIds.Contains(u.Id)));
+            Debug.WriteLine($"[LoadAsync] AllUsers count: {AllUsers.Count}");
+            foreach (var u in AllUsers)
+                Debug.WriteLine($"[LoadAsync] User: {u.FullName}");
         }
     }
 
     partial void OnSearchTextChanged(string value)
     {
         Debug.WriteLine($"[Search] hledám: {value}");
+
         if (string.IsNullOrWhiteSpace(value))
         {
             FilteredUsers = new ObservableCollection<User>(AllUsers);
-            FilteredUsers.Clear();
+            Debug.WriteLine("[Search] Výchozí filtr - všichni uživatelé:");
+            foreach (var u in FilteredUsers)
+                Debug.WriteLine($"→ {u.FullName}");
             return;
         }
 
-        FilteredUsers = new ObservableCollection<User>(
-            AllUsers.Where(u => u.FullName.Contains(value, StringComparison.OrdinalIgnoreCase)));
+        var results = AllUsers
+            .Where(u => u.FullName.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        FilteredUsers = new ObservableCollection<User>(results);
+        Debug.WriteLine($"[Search] Výsledků: {results.Count}");
+        foreach (var u in results)
+            Debug.WriteLine($"→ {u.FullName}");
     }
 
     [RelayCommand]
@@ -126,7 +115,6 @@ public partial class MeetingDetailViewModel : ObservableObject
     [RelayCommand]
     public async Task RemoveParticipantAsync(User user)
     {
-        Debug.WriteLine($"Odebírám userId={user.Id} ze schůzky {meetingId}");
         await _meetingService.RemoveParticipantAsync(MeetingId, user.Id);
         Participants.Remove(user);
 
@@ -136,7 +124,7 @@ public partial class MeetingDetailViewModel : ObservableObject
 
     [RelayCommand]
     public async Task SaveChangesAsync()
-    {
+        {
         if (SelectedMeeting == null) return;
 
         if (Pattern == "None")
@@ -156,6 +144,10 @@ public partial class MeetingDetailViewModel : ObservableObject
             SelectedMeeting.EndDate = EndDate;
         }
 
+        // ⛔ Zabrání nekonečné rekurzi při serializaci JSON
+        if (SelectedMeeting?.Recurrence?.Meetings != null)
+            SelectedMeeting.Recurrence.Meetings = null;
+
         var meetingJson = JsonSerializer.Serialize(SelectedMeeting, new JsonSerializerOptions
         {
             WriteIndented = true,
@@ -163,15 +155,12 @@ public partial class MeetingDetailViewModel : ObservableObject
             ReferenceHandler = ReferenceHandler.Preserve
         });
 
-        Debug.WriteLine("Odesílám Meeting objekt na server:");
-        Debug.WriteLine(meetingJson);
+        Debug.WriteLine($"[SaveAsync] Recurence: {meetingJson}");
 
         var success = await _meetingService.UpdateMeetingAsync(SelectedMeeting);
         if (success)
         {
             WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
-            Debug.WriteLine($"[Save] Pattern: {Pattern}, EndDate: {EndDate}");
-            Debug.WriteLine("Schůzka byla aktualizována.");
         }
     }
 
@@ -179,6 +168,7 @@ public partial class MeetingDetailViewModel : ObservableObject
 
     partial void OnPatternChanged(string value)
     {
+        if (_isInitializing) return;
         if (value == "None")
         {
             EndDate = DateTime.Today;
@@ -196,12 +186,11 @@ public partial class MeetingDetailViewModel : ObservableObject
         }
 
         SaveChangesAsync();
-        Debug.WriteLine("Změny patternu uloženy");
     }
 
     partial void OnEndDateChanged(DateTime? value)
     {
-        Debug.WriteLine("Vybral jsem datum");
+        if (_isInitializing) return;
         SaveChangesAsync();
     }
 

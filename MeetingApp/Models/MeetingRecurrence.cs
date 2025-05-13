@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace MeetingApp.Models
 {
@@ -11,6 +12,7 @@ namespace MeetingApp.Models
 
         public int Interval { get; set; } = 1;
 
+        [JsonIgnore]
         public List<Meeting> Meetings { get; set; } = new();
     }
 }
