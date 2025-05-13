@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-{
+
+namespace MeetingApp.Models
+{ 
     public class Meeting
     {
         public int Id { get; set; }

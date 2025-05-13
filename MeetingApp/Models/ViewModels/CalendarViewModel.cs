@@ -1,5 +1,4 @@
-﻿
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using MeetingApp.Models;
@@ -7,6 +6,7 @@ using MeetingApp.Pages;
 using MeetingApp.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+
 
 namespace MeetingApp.Models.ViewModels;
 
@@ -48,6 +48,7 @@ public partial class CalendarViewModel : ObservableObject
                     Debug.WriteLine($"  - {meeting.Title} na {meeting.Date:dd.MM.yyyy}");
                     Meetings.Add(meeting);
                 }
+
             }
             UpdateCalendar();
         }
@@ -57,14 +58,21 @@ public partial class CalendarViewModel : ObservableObject
         }
     }
 
+
+
+
+
     private void UpdateCalendar()
     {
+        var newDays = new ObservableCollection<DayModel>();
         Days.Clear();
+
         var allMeetings = Meetings.ToList();
+
+        // Přidat instance opakujících se schůzek pro aktuální týden
         var recurringInstances = GenerateRecurringMeetingsForWeek(CurrentWeekStart);
         allMeetings.AddRange(recurringInstances);
 
-        var newDays = new ObservableCollection<DayModel>();
         int baseHour = 8;
         int blockMinutes = 30;
         int baseMinutes = baseHour * 60;
@@ -105,61 +113,79 @@ public partial class CalendarViewModel : ObservableObject
         WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
     }
 
+    // Vygeneruj virtuální instance pro týden
     private List<Meeting> GenerateRecurringMeetingsForWeek(DateTime weekStart)
     {
         var result = new List<Meeting>();
-        var weekEnd = weekStart.AddDays(6);
+        var weekEnd = weekStart.AddDays(7);
 
         foreach (var m in Meetings.Where(m => m.IsRegular && m.Recurrence != null))
         {
             var recurrence = m.Recurrence!;
+            var pattern = recurrence.Pattern;
             var interval = recurrence.Interval;
             var endDate = m.EndDate ?? weekEnd;
+
             var originalDate = m.Date;
 
-            DateTime iterator = weekStart;
-
-            while (iterator <= weekEnd && iterator <= endDate)
+            DateTime dateIterator = recurrence.Pattern switch
             {
-                if (recurrence.Pattern == "Weekly" &&
-                    (iterator - originalDate).Days % (7 * interval) == 0)
+                "Weekly" => originalDate.StartOfWeek(DayOfWeek.Monday),
+                "Monthly" => new DateTime(originalDate.Year, originalDate.Month, 1),
+                _ => originalDate
+            };
+
+            while (dateIterator <= weekEnd)
+            {
+                if (dateIterator >= weekStart && dateIterator <= endDate)
                 {
-                    result.Add(CloneRecurringMeeting(m, iterator));
-                }
-                else if (recurrence.Pattern == "Monthly" &&
-                         originalDate.Day == iterator.Day)
-                {
-                    var monthsBetween = ((iterator.Year - originalDate.Year) * 12) + iterator.Month - originalDate.Month;
-                    if (monthsBetween % interval == 0)
+                    // ověřit, zda má být tento den instancí
+                    if (pattern == "Weekly" && (dateIterator - originalDate).Days % (7 * interval) == 0)
                     {
-                        result.Add(CloneRecurringMeeting(m, iterator));
+                        var inst = new Meeting
+                        {
+                            Id = m.Id,
+                            Title = m.Title,
+                            Date = dateIterator,
+                            StartTime = m.StartTime,
+                            EndTime = m.EndTime,
+                            ColorHex = m.ColorHex,
+                            IsRegular = m.IsRegular,
+                            RecurrenceId = m.RecurrenceId,
+                            Recurrence = m.Recurrence,
+                            Participants = m.Participants
+                        };
+                        result.Add(inst);
+                    }
+                    else if (pattern == "Monthly" && originalDate.Day == dateIterator.Day)
+                    {
+                        var monthsBetween = ((dateIterator.Year - originalDate.Year) * 12) + dateIterator.Month - originalDate.Month;
+                        if (monthsBetween % interval == 0)
+                        {
+                            var inst = new Meeting
+                            {
+                                Id = m.Id,
+                                Title = m.Title,
+                                Date = dateIterator,
+                                StartTime = m.StartTime,
+                                EndTime = m.EndTime,
+                                ColorHex = m.ColorHex,
+                                IsRegular = m.IsRegular,
+                                RecurrenceId = m.RecurrenceId,
+                                Recurrence = m.Recurrence,
+                                Participants = m.Participants
+                            };
+                            result.Add(inst);
+                        }
                     }
                 }
-
-                iterator = iterator.AddDays(1);
+                dateIterator = dateIterator.AddDays(1);
             }
         }
 
         return result;
     }
 
-    private Meeting CloneRecurringMeeting(Meeting source, DateTime newDate)
-    {
-        return new Meeting
-        {
-            Id = source.Id,
-            Title = source.Title,
-            Date = newDate,
-            StartTime = source.StartTime,
-            EndTime = source.EndTime,
-            ColorHex = source.ColorHex,
-            IsRegular = true,
-            RecurrenceId = source.RecurrenceId,
-            Recurrence = source.Recurrence,
-            Participants = source.Participants,
-            CreatedByUserId = source.CreatedByUserId
-        };
-    }
 
     [RelayCommand]
     public void OnPreviousWeekClicked()
@@ -167,6 +193,7 @@ public partial class CalendarViewModel : ObservableObject
         CurrentWeekStart = CurrentWeekStart.AddDays(-7);
         UpdateCalendar();
         WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
+
     }
 
     [RelayCommand]
@@ -175,6 +202,7 @@ public partial class CalendarViewModel : ObservableObject
         CurrentWeekStart = CurrentWeekStart.AddDays(7);
         UpdateCalendar();
         WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
+
     }
 
     [RelayCommand]
