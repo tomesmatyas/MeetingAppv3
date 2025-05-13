@@ -64,14 +64,17 @@ public class MeetingService
     private List<Meeting> ExpandRecurringMeetings(List<Meeting> meetings)
     {
         var result = new List<Meeting>();
-        var rangeStart = DateTime.Today.StartOfWeek(DayOfWeek.Monday);
-        var rangeEnd = rangeStart.AddDays(6);
+
+        // Definuj časový rozsah pro zobrazení (např. měsíc zpět až 3 měsíce dopředu)
+        var rangeStart = DateTime.Today.AddMonths(-1);
+        var rangeEnd = DateTime.Today.AddMonths(3);
 
         foreach (var m in meetings)
         {
             if (!m.IsRegular || m.Recurrence == null)
             {
-                result.Add(m);
+                if (m.Date >= rangeStart && m.Date <= rangeEnd)
+                    result.Add(m);
                 continue;
             }
 
@@ -94,7 +97,6 @@ public class MeetingService
                         result.Add(CloneMeeting(m, instanceDate));
                     }
                 }
-
                 instanceDate = instanceDate.AddDays(1);
             }
         }
@@ -118,6 +120,7 @@ public class MeetingService
             Participants = source.Participants
         };
     }
+
 
     public async Task<bool> AddMeetingAsync(Meeting meeting)
     {
