@@ -43,6 +43,8 @@ public partial class MeetingDetailViewModel : ObservableObject
 
     public async Task LoadAsync()
     {
+
+        await _meetingService.InitAsync();
         if (MeetingId <= 0) return;
 
 

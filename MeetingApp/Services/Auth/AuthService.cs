@@ -8,11 +8,13 @@ namespace MeetingApp.Services.Auth;
 public class AuthService : IAuthService
 {
     private readonly HttpClient _httpClient;
+    private readonly ILocalStorageService _localStorage;
     private UserDto? _user;
 
-    public AuthService(HttpClient httpClient)
+    public AuthService(HttpClient httpClient, ILocalStorageService localStorage)
     {
         _httpClient = httpClient;
+        _localStorage = localStorage;
     }
 
     public async Task<bool> LoginAsync(string username, string password)
@@ -31,6 +33,8 @@ public class AuthService : IAuthService
         Preferences.Set("access_token", result.Token);
         Preferences.Set("user_id", result.User.Id);
         Preferences.Set("user_name", result.User.FirstName);
+
+        await _localStorage.SaveTokenAsync(result.Token);
 
         _user = result.User;
         return true;

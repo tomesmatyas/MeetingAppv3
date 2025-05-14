@@ -21,27 +21,55 @@ namespace MeetingApp.Services
         Task ClearPendingMeetingsAsync();
         Task RemovePendingMeetingAsync(Meeting meeting);
         Task RemovePendingParticipantAsync(int meetingId, MeetingParticipant participant);
-
         Task SaveUsersAsync(List<User> users);
         Task<List<User>> LoadUsersAsync();
+        Task SaveTokenAsync(string token);
+        Task<string?> GetTokenAsync();
     }
 
     public class LocalStorageService : ILocalStorageService
     {
         private readonly string _filePath;
         private readonly string _usersFilePath;
+        private readonly string _tokenFilePath;
+        private readonly string _pendingFilePath;
+        private readonly string _pendingMeetingsPath;
 
         public LocalStorageService()
         {
             var folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             _filePath = Path.Combine(folder, "meetings.json");
             _usersFilePath = Path.Combine(folder, "users.json");
+            _tokenFilePath = Path.Combine(folder, "auth_token.txt");
+            _pendingFilePath = Path.Combine(folder, "pending_participants.json");
+            _pendingMeetingsPath = Path.Combine(folder, "pending_meetings.json");
         }
 
-        private readonly string _pendingFilePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "pending_participants.json"
-        );
+        public async Task SaveTokenAsync(string token)
+        {
+            try
+            {
+                await File.WriteAllTextAsync(_tokenFilePath, token);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Chyba při ukládání tokenu: {ex.Message}");
+            }
+        }
+
+        public async Task<string?> GetTokenAsync()
+        {
+            try
+            {
+                if (!File.Exists(_tokenFilePath)) return null;
+                return await File.ReadAllTextAsync(_tokenFilePath);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Chyba při čtení tokenu: {ex.Message}");
+                return null;
+            }
+        }
 
         public async Task SaveUsersAsync(List<User> users)
         {
@@ -157,11 +185,6 @@ namespace MeetingApp.Services
                 await SaveMeetingsAsync(meetings);
             }
         }
-
-        private readonly string _pendingMeetingsPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "pending_meetings.json"
-        );
 
         public async Task<List<Meeting>> LoadPendingMeetingsAsync()
         {

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using MeetingApp.Services;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using MeetingApp.Models.Dtos;
+using System.Net.Http.Headers;
 
 namespace MeetingApp.Services;
 
@@ -18,6 +19,7 @@ public class MeetingService
     {
         _httpClient = httpClient;
         _localStorage = localStorage;
+
         
 
         Connectivity.ConnectivityChanged += async (s, e) =>
@@ -25,6 +27,27 @@ public class MeetingService
             if (e.NetworkAccess.HasFlag(NetworkAccess.Internet))
                 await SyncPendingChangesAsync();
         };
+
+
+        Connectivity.ConnectivityChanged += async (s, e) =>
+        {
+            if (e.NetworkAccess.HasFlag(NetworkAccess.Internet))
+                await SyncPendingChangesAsync();
+        };
+    }
+    public async Task InitAsync()
+    {
+        var token = await _localStorage.GetTokenAsync();
+
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            Debug.WriteLine("TOKEN >>> " + token); // ✅ loguj až po nastavení
+        }
+        else
+        {
+            Debug.WriteLine("❌ Token není dostupný");
+        }
     }
 
 
