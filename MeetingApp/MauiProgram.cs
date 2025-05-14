@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui;
+﻿// File: MauiProgram.cs
+using CommunityToolkit.Maui;
 using MeetingApp.Models.ViewModels;
 using MeetingApp.Pages;
 using MeetingApp.Services;
@@ -24,32 +25,27 @@ namespace MeetingApp
                 });
 
 #if DEBUG
-    		builder.Logging.AddDebug();
-
-            builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri("http://localhost:5091") });
-            builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>();
-            builder.Services.AddSingleton<IAuthService, AuthService>();
-            // Registrace MeetingService
-            builder.Services.AddSingleton<MeetingService>();
-
-            // Registrace ViewModelu a stránky
-            builder.Services.AddTransient<TestViewModel>();
-            builder.Services.AddTransient<CalendarViewModel>();
-            builder.Services.AddTransient<AddMeetingViewModel>();
-
-              builder.Services.AddTransient<TestPage>();
-            builder.Services.AddTransient<AddMeetingPage>();
-            builder.Services.AddTransient<CalendarPage>();
-
-            builder.Services.AddTransient<MeetingDetailViewModel>();
-            builder.Services.AddTransient<MeetingDetailPage>();
-
-           
-            
-            builder.Services.AddTransient<AppShell>();
-            builder.Services.AddTransient<AppShellViewModel>();
-            
+            builder.Logging.AddDebug();
 #endif
+
+            // Services
+            builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri("http://localhost:5091") });
+            builder.Services.AddSingleton<MeetingService>();
+            builder.Services.AddSingleton<IAuthService, AuthService>();
+            builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>();
+
+
+            // ViewModels
+            builder.Services.AddTransient<LoginViewModel>();
+            builder.Services.AddTransient<CalendarViewModel>();
+            builder.Services.AddTransient<AppShellViewModel>();
+            builder.Services.AddTransient<MeetingDetailViewModel>();
+
+            // Pages
+            builder.Services.AddTransient<AppShell>();
+            builder.Services.AddTransient<LoginPage>();
+            builder.Services.AddTransient<CalendarPage>();
+            builder.Services.AddTransient<MeetingDetailPage>();
 
             return builder.Build();
         }

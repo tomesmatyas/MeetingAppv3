@@ -45,6 +45,7 @@ public partial class MeetingDetailViewModel : ObservableObject
     {
         if (MeetingId <= 0) return;
 
+
         var meeting = await _meetingService.GetMeetingByIdAsync(MeetingId);
         Debug.WriteLine($"Načtená schůzka: {meeting.Title} na {meeting.Date:dd.MM.yyyy}");
         foreach (var p in meeting.Participants)

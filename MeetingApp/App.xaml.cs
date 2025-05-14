@@ -1,45 +1,54 @@
-﻿using MeetingApp.Services;
+﻿using MeetingApp.Pages;
+using MeetingApp.Services;
 using MeetingApp.Services.Auth;
+using System.Diagnostics;
 
 namespace MeetingApp
 {
     public partial class App : Application
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly MeetingService _meetingService;
+        //private readonly IServiceProvider _serviceProvider;
+        //private readonly MeetingService _meetingService;
 
-        public App(IServiceProvider serviceProvider, MeetingService meetingService)
+        public App()
         {
             InitializeComponent();
-            _serviceProvider = serviceProvider;
-            _meetingService = meetingService;
+            //_serviceProvider = serviceProvider;
+            //_meetingService = meetingService;
 
-            SetMainPageBasedOnLogin();
+           // SetMainPageBasedOnLogin();
 
             // Automatická synchronizace offline dat
-            Task.Run(async () =>
-            {
-                if (Connectivity.NetworkAccess == NetworkAccess.Internet)
-                    await _meetingService.SyncPendingChangesAsync();
-            });
+            //Task.Run(async () =>
+            //{
+            //    if (Connectivity.NetworkAccess == NetworkAccess.Internet)
+            //        await _meetingService.SyncPendingChangesAsync();
+            //});
         }
 
-        private async void SetMainPageBasedOnLogin()
-        {
-            MainPage = _serviceProvider.GetRequiredService<AppShell>();
+        //private async void SetMainPageBasedOnLogin()
+        //{
+        //    try
+        //    {
+        //        MainPage = _serviceProvider.GetRequiredService<AppShell>();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine("[FATAL] AppShell failed: " + ex.Message);
+        //    }
 
-            await Task.Delay(200); // počkej na inicializaci Shell.Current
+        //    await Task.Delay(200); // počkej na inicializaci Shell.Current
 
-            var token = Preferences.Get("access_token", string.Empty);
-            if (!string.IsNullOrEmpty(token))
-                await Shell.Current.GoToAsync("//CalendarPage");
-            else
-                await Shell.Current.GoToAsync("//LoginPage");
-        }
+        //    var token = Preferences.Get("access_token", string.Empty);
+        //    if (!string.IsNullOrEmpty(token))
+        //        await Shell.Current.GoToAsync("//CalendarPage");
+        //    else
+        //        await Shell.Current.GoToAsync("//LoginPage");
+        //}
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(_serviceProvider.GetRequiredService<AppShell>());
+            return new Window(new AppShell());
         }
     }
 }

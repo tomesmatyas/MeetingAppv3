@@ -10,6 +10,7 @@ namespace MeetingApp.Models
         public string PasswordHash { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public bool IsAdmin { get; set; } = false;
+        public string Role { get; set; } = "User";
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string FullName =>

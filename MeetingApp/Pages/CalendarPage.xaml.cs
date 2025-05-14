@@ -56,6 +56,7 @@ public partial class CalendarPage : ContentPage
         foreach (var meeting in day.Meetings)
         {
             Debug.WriteLine($" {meeting.Title} {meeting.TimeRange}");
+            Debug.WriteLine($"[DEBUG] Title = '{meeting.Title}', Time = {meeting.TimeRange}, Id = {meeting.Id}");
             var frame = new Frame
             {
                 BackgroundColor = Color.FromArgb(meeting.ColorHex),

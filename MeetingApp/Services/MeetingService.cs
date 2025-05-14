@@ -18,7 +18,7 @@ public class MeetingService
     {
         _httpClient = httpClient;
         _localStorage = localStorage;
-        _httpClient.BaseAddress = new Uri("http://localhost:5091");
+        
 
         Connectivity.ConnectivityChanged += async (s, e) =>
         {
@@ -37,6 +37,10 @@ public class MeetingService
             {
                 var json = await response.Content.ReadAsStringAsync();
                 var meetings = JsonConvert.DeserializeObject<List<MeetingDto>>(json);
+
+                foreach (var m in meetings)
+                    Debug.WriteLine("Title = " + m.Title);
+
                 return meetings?
                     .Select(MeetingMapper.SanitizeDto)
                     .Where(m => m != null)
@@ -60,6 +64,7 @@ public class MeetingService
             {
                 var json = await response.Content.ReadAsStringAsync();
                 var dto = JsonConvert.DeserializeObject<MeetingDto>(json);
+                Debug.WriteLine(json);
                 return MeetingMapper.SanitizeDto(dto);
             }
         }

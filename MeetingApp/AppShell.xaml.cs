@@ -5,10 +5,10 @@ namespace MeetingApp
 {
     public partial class AppShell : Shell
     {
-        public AppShell(AppShellViewModel vm)
+        public AppShell()
         {
             InitializeComponent();
-            BindingContext = vm;
+            
             Routing.RegisterRoute(nameof(AddMeetingPage), typeof(AddMeetingPage));
             Routing.RegisterRoute(nameof(MeetingDetailPage), typeof(MeetingDetailPage));
         }
