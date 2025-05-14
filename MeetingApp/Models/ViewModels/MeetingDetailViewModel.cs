@@ -31,6 +31,7 @@ public partial class MeetingDetailViewModel : ObservableObject
     [ObservableProperty] private string searchText;
     [ObservableProperty] private ObservableCollection<UserDto> filteredUsers = new();
 
+
     private bool _isInitializing = true;
 
     public List<string> RecurrencePatterns => new() { "None", "Weekly", "Monthly" };
@@ -46,6 +47,13 @@ public partial class MeetingDetailViewModel : ObservableObject
 
         var meeting = await _meetingService.GetMeetingByIdAsync(MeetingId);
         Debug.WriteLine($"Načtená schůzka: {meeting.Title} na {meeting.Date:dd.MM.yyyy}");
+        foreach (var p in meeting.Participants)
+        {
+            if (p == null)
+                Debug.WriteLine("[DEBUG] Null participant");
+            else
+                Debug.WriteLine($"[DEBUG] Participant {p} - {p.User.Username} - {p.User.FirstName} {p.User.LastName}");
+        }
         if (meeting != null)
         {
             _isInitializing = true;
@@ -58,11 +66,21 @@ public partial class MeetingDetailViewModel : ObservableObject
             Pattern = meeting.Recurrence?.Pattern ?? "None";
             EndDate = meeting.EndDate;
 
-            Participants = new ObservableCollection<UserDto>(meeting.Participants);
+            Participants = new ObservableCollection<UserDto>(
+                meeting.Participants
+                    .Where(p => p.User != null)
+                    .Select(p => p.User!));
+
             Debug.WriteLine($"Načtená schůzka: {meeting.Title} na {meeting.Date:dd.MM.yyyy}");
             var all = await _meetingService.GetAllUsersAsync();
-            var existingIds = meeting.Participants.Select(p => p.Id).ToHashSet();
+            var existingIds = meeting.Participants
+                .Where(p => p != null)
+                .Select(p => p.User.Id)
+                .ToHashSet();
+
             AllUsers = new ObservableCollection<UserDto>(all.Where(u => !existingIds.Contains(u.Id)));
+            foreach (var p in Participants)
+                Debug.WriteLine($"[DEBUG] {p.Id} → {p.FirstName} {p.LastName} / {p.Username}");
 
             _isInitializing = false;
         }
@@ -107,27 +125,28 @@ public partial class MeetingDetailViewModel : ObservableObject
     [RelayCommand]
     public async Task SaveChangesAsync()
     {
-        if (SelectedMeeting == null) return;
+        var meeting = SelectedMeeting;
+        if (meeting == null) return;
 
-        SelectedMeeting.Title = Title;
-        SelectedMeeting.Date = Date;
-        SelectedMeeting.StartTime = StartTime;
-        SelectedMeeting.EndTime = EndTime;
-        SelectedMeeting.IsRegular = Pattern != "None";
-        SelectedMeeting.EndDate = EndDate;
+        meeting.Title = Title;
+        meeting.Date = Date;
+        meeting.StartTime = StartTime;
+        meeting.EndTime = EndTime;
+        meeting.IsRegular = Pattern != "None";
+        meeting.EndDate = EndDate;
 
-        if (SelectedMeeting.IsRegular)
+        if (meeting.IsRegular)
         {
-            SelectedMeeting.Recurrence ??= new MeetingRecurrenceDto();
-            SelectedMeeting.Recurrence.Pattern = Pattern;
-            SelectedMeeting.Recurrence.Interval = 1;
+            meeting.Recurrence ??= new MeetingRecurrenceDto();
+            meeting.Recurrence.Pattern = Pattern;
+            meeting.Recurrence.Interval = 1;
         }
         else
         {
-            SelectedMeeting.Recurrence = null;
+            meeting.Recurrence = null;
         }
 
-        await _meetingService.UpdateMeetingAsync(SelectedMeeting);
+        await _meetingService.UpdateMeetingAsync(meeting);
     }
 
     partial void OnPatternChanged(string value)
@@ -150,8 +169,10 @@ public partial class MeetingDetailViewModel : ObservableObject
 
     partial void OnEndDateChanged(DateTime? value)
     {
-        if (_isInitializing) return;
-        SaveChangesAsync();
+        if (_isInitializing || SelectedMeeting == null) return;
+
+        SelectedMeeting.EndDate = value;
+        _ = SaveChangesAsync();
     }
 
     [RelayCommand]

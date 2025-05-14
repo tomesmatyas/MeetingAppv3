@@ -1,12 +1,14 @@
-﻿using MeetingApp.Pages;
+﻿using MeetingApp.Models.ViewModels;
+using MeetingApp.Pages;
 
 namespace MeetingApp
 {
     public partial class AppShell : Shell
     {
-        public AppShell()
+        public AppShell(AppShellViewModel vm)
         {
             InitializeComponent();
+            BindingContext = vm;
             Routing.RegisterRoute(nameof(AddMeetingPage), typeof(AddMeetingPage));
             Routing.RegisterRoute(nameof(MeetingDetailPage), typeof(MeetingDetailPage));
         }

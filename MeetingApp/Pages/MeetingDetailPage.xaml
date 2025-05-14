@@ -5,6 +5,7 @@
              x:DataType="vm:MeetingDetailViewModel"
              xmlns:models="clr-namespace:MeetingApp.Models"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:dtos="clr-namespace:MeetingApp.Models.Dtos"
              Title="Detail Schůzky">
 
     <ScrollView>
@@ -35,7 +36,7 @@
                        Placeholder="Hledat účastníka..." />
             <CollectionView ItemsSource="{Binding FilteredUsers}">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:User">
+                    <DataTemplate x:DataType="dtos:UserDto">
                         <Label Text="{Binding FullName}">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer
@@ -50,9 +51,9 @@
             <Label Text="Účastníci" FontAttributes="Bold"/>
             <CollectionView ItemsSource="{Binding Participants}">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:User">
+                    <DataTemplate x:DataType="dtos:UserDto">
                         <Grid Padding="5" ColumnDefinitions="*,*,Auto">
-                            <Label Text="{Binding FirstName}" Grid.Column="0"/>
+                            <Label Text="{Binding FullName}" Grid.Column="0"/>
                             <Label Text="{Binding Email}" Grid.Column="1"/>
                             <Button Text="🗑"
                         Grid.Column="2"

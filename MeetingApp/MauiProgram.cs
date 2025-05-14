@@ -2,6 +2,7 @@
 using MeetingApp.Models.ViewModels;
 using MeetingApp.Pages;
 using MeetingApp.Services;
+using MeetingApp.Services.Auth;
 using MeetingApp.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -27,6 +28,7 @@ namespace MeetingApp
 
             builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri("http://localhost:5091") });
             builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>();
+            builder.Services.AddSingleton<IAuthService, AuthService>();
             // Registrace MeetingService
             builder.Services.AddSingleton<MeetingService>();
 
@@ -41,6 +43,11 @@ namespace MeetingApp
 
             builder.Services.AddTransient<MeetingDetailViewModel>();
             builder.Services.AddTransient<MeetingDetailPage>();
+
+           
+            
+            builder.Services.AddTransient<AppShell>();
+            builder.Services.AddTransient<AppShellViewModel>();
             
 #endif
 

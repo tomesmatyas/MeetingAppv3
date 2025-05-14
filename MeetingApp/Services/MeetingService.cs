@@ -19,7 +19,14 @@ public class MeetingService
         _httpClient = httpClient;
         _localStorage = localStorage;
         _httpClient.BaseAddress = new Uri("http://localhost:5091");
+
+        Connectivity.ConnectivityChanged += async (s, e) =>
+        {
+            if (e.NetworkAccess.HasFlag(NetworkAccess.Internet))
+                await SyncPendingChangesAsync();
+        };
     }
+
 
     public async Task<List<MeetingDto>> GetMeetingsAsync()
     {
@@ -30,7 +37,10 @@ public class MeetingService
             {
                 var json = await response.Content.ReadAsStringAsync();
                 var meetings = JsonConvert.DeserializeObject<List<MeetingDto>>(json);
-                return meetings ?? new();
+                return meetings?
+                    .Select(MeetingMapper.SanitizeDto)
+                    .Where(m => m != null)
+                    .ToList() ?? new();
             }
         }
         catch (Exception ex)
@@ -49,7 +59,8 @@ public class MeetingService
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<MeetingDto>(json);
+                var dto = JsonConvert.DeserializeObject<MeetingDto>(json);
+                return MeetingMapper.SanitizeDto(dto);
             }
         }
         catch (Exception ex)
@@ -58,6 +69,7 @@ public class MeetingService
         }
 
         return null;
+
     }
 
     public async Task<bool> AddMeetingAsync(MeetingDto meeting)
@@ -68,15 +80,20 @@ public class MeetingService
                 meeting.EndDate = DateTime.Now.AddMonths(6);
 
             var response = await _httpClient.PostAsJsonAsync("/api/meetings", meeting);
-            return response.IsSuccessStatusCode;
+            if (response.IsSuccessStatusCode)
+                return true;
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[Offline] Chyba: {ex.Message}");
+            Debug.WriteLine($"[Offline] Chyba AddMeeting: {ex.Message}");
         }
 
+        // Offline fallback
+        var model = MeetingMapper.MapToModel(meeting);
+        await _localStorage.SavePendingMeetingsAsync(new List<Meeting> { model });
         return false;
     }
+
 
     public async Task<bool> UpdateMeetingAsync(MeetingDto meeting)
     {
@@ -86,13 +103,27 @@ public class MeetingService
                 meeting.EndDate = DateTime.Now.AddMonths(6);
 
             var response = await _httpClient.PutAsJsonAsync($"/api/meetings/{meeting.Id}", meeting);
-            return response.IsSuccessStatusCode;
+            if (!response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine($"[❌ API Error] {response.StatusCode}: {content}");
+            }
+            else {
+                return true; 
+            }
+            
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[Chyba] UpdateMeetingAsync: {ex.Message}");
+            Debug.WriteLine($"[Offline] UpdateMeetingAsync selhal: {ex.Message}");
         }
 
+        // Offline fallback
+        var model = MeetingMapper.MapToModel(meeting);
+        var pending = await _localStorage.LoadPendingMeetingsAsync();
+        pending.RemoveAll(m => m.Id == model.Id);
+        pending.Add(model);
+        await _localStorage.SavePendingMeetingsAsync(pending);
         return false;
     }
 
@@ -114,14 +145,29 @@ public class MeetingService
     {
         try
         {
-            var payload = new { userId = userId };
+            var payload = new { userId };
             await _httpClient.PostAsJsonAsync($"/api/meetings/{meetingId}/participants", payload);
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[Chyba] AddParticipantAsync: {ex.Message}");
+            Debug.WriteLine($"[Offline] AddParticipantAsync selhal: {ex.Message}");
+
+            // Offline fallback
+            var user = (await _localStorage.LoadUsersAsync()).FirstOrDefault(u => u.Id == userId);
+            if (user != null)
+            {
+                var participant = new MeetingParticipant
+                {
+                    MeetingId = meetingId,
+                    UserId = userId,
+                    User = user
+                };
+
+                await _localStorage.SavePendingParticipantAsync(meetingId, participant);
+            }
         }
     }
+
 
     public async Task RemoveParticipantAsync(int meetingId, int userId)
     {

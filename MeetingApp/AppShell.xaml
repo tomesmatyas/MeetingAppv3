@@ -5,26 +5,37 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:MeetingApp"
     xmlns:pages="clr-namespace:MeetingApp.Pages"
+    xmlns:vm="clr-namespace:MeetingApp.Models.ViewModels"
     Shell.FlyoutBehavior="Flyout"
     Title="MeetingApp">
 
+  
+    <Shell.FlyoutHeader>
+        <StackLayout Padding="10">
+            <Label Text="Menu" FontSize="24" FontAttributes="Bold" />
+            <Button Text="Odhlásit se"
+                    Command="{Binding LogoutCommand}" />
+        </StackLayout>
+    </Shell.FlyoutHeader>
+
+    <ShellContent
+        Route="LoginPage"
+        ContentTemplate="{DataTemplate pages:LoginPage}" />
 
     <TabBar>
         <ShellContent 
-        Title="Home"
-        Route="CalendarPage" 
-        ContentTemplate="{DataTemplate pages:CalendarPage}" />
+            Title="Home"
+            Route="CalendarPage" 
+            ContentTemplate="{DataTemplate pages:CalendarPage}" />
 
         <ShellContent 
-        Title="Detail Page"
-        Route="MeetingDetailPage" 
-        ContentTemplate="{DataTemplate pages:MeetingDetailPage}" />
+            Title="Detail Page"
+            Route="MeetingDetailPage" 
+            ContentTemplate="{DataTemplate pages:MeetingDetailPage}" />
 
         <ShellContent 
-        Title="Test"
-        Route="TestPage" 
-        ContentTemplate="{DataTemplate pages:TestPage}" />
+            Title="Test"
+            Route="TestPage" 
+            ContentTemplate="{DataTemplate pages:TestPage}" />
     </TabBar>
-
-
 </Shell>

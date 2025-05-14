@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MeetingApp.Models.Dtos;
 
@@ -10,9 +7,14 @@ public class UserDto
 {
     public int Id { get; set; }
     public string Username { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
+
+    public string FullName =>
+        string.IsNullOrWhiteSpace(FirstName) && string.IsNullOrWhiteSpace(LastName)
+            ? Username
+            : $"{FirstName} {LastName}".Trim();
 }
 
 public class CreateUserDto
@@ -30,11 +32,9 @@ public class UpdateUserDto
     public string Email { get; set; } = string.Empty;
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
-
-
-
-    public string FullName => $"{FirstName} {LastName}".Trim();
+    public string Username { get; set; } = string.Empty;
 }
+
 public class MeetingDto
 {
     public int Id { get; set; }
@@ -52,7 +52,7 @@ public class MeetingDto
     public int CreatedByUserId { get; set; }
     public UserDto? CreatedByUser { get; set; }
 
-    public List<UserDto> Participants { get; set; } = new();
+    public List<MeetingParticipantDto> Participants { get; set; } = new();
 }
 
 public class MeetingRecurrenceDto
@@ -69,3 +69,8 @@ public class MeetingParticipantDto
     public UserDto? User { get; set; }
 }
 
+public class LoginResponseDto
+{
+    public string Token { get; set; } = string.Empty;
+    public UserDto User { get; set; } = new();
+}
