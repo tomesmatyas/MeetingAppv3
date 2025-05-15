@@ -163,6 +163,41 @@ public class MeetingService
         await _localStorage.SavePendingMeetingsAsync(pending);
         return false;
     }
+    public async Task<bool> CreateMeetingAsync(MeetingDto dto)
+    {
+        try
+        {
+            var token = await _localStorage.GetTokenAsync();
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            // Přidej userId vytvořitele
+            if (dto.CreatedByUserId == 0)
+            {
+                var idStr = await SecureStorage.Default.GetAsync("user_id");
+                if (!int.TryParse(idStr, out int userId))
+                    return false;
+
+                dto.CreatedByUserId = userId;
+            }
+
+            var response = await _httpClient.PostAsJsonAsync("/api/meetings", dto);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Debug.WriteLine("[API] Schůzka vytvořena.");
+                return true;
+            }
+
+            Debug.WriteLine($"[API] Vytvoření selhalo: {(int)response.StatusCode} {response.ReasonPhrase}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[API] Chyba při vytváření schůzky: {ex.Message}");
+            return false;
+        }
+    }
 
     public async Task<bool> DeleteMeetingAsync(int id)
     {

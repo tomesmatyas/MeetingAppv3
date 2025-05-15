@@ -54,12 +54,14 @@ public static class MauiProgram
         builder.Services.AddTransient<CalendarViewModel>();
         builder.Services.AddTransient<AppShellViewModel>();
         builder.Services.AddTransient<MeetingDetailViewModel>();
+        builder.Services.AddTransient<AddMeetingViewModel>();
 
         // Pages
         builder.Services.AddSingleton<AppShell>();
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<CalendarPage>();
         builder.Services.AddTransient<MeetingDetailPage>();
+        builder.Services.AddTransient<AddMeetingPage>();
 
         return builder.Build();
     }

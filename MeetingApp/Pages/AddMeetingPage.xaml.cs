@@ -1,4 +1,5 @@
-using MeetingApp.ViewModels;
+using MeetingApp.Models.ViewModels;
+
 
 namespace MeetingApp.Pages;
 
