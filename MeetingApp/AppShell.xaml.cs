@@ -1,4 +1,5 @@
 ﻿using MeetingApp.Models.ViewModels;
+using MeetingApp.Pages;
 using MeetingApp.Services.Auth;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,6 +14,9 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
         _authGuard = authGuard;
+
+        Routing.RegisterRoute(nameof(AddMeetingPage), typeof(AddMeetingPage));
+        Routing.RegisterRoute(nameof(MeetingDetailPage), typeof(MeetingDetailPage));
 
         Navigating += AppShell_Navigating;
         _userSession = userSession;

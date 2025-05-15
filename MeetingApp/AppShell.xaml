@@ -26,7 +26,7 @@
         Route="LoginPage"
         ContentTemplate="{DataTemplate pages:LoginPage}" />
 
-    <TabBar>
+    
         <ShellContent 
             Title="Home"
             Route="CalendarPage" 
@@ -41,5 +41,5 @@
             Title="Test"
             Route="TestPage" 
             ContentTemplate="{DataTemplate pages:TestPage}" />
-    </TabBar>
+    
 </Shell>
