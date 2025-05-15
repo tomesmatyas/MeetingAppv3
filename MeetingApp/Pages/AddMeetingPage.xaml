@@ -1,61 +1,77 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewmodels="clr-namespace:MeetingApp.Models.ViewModels"
+             xmlns:vm="clr-namespace:MeetingApp.Models.ViewModels"
              x:Class="MeetingApp.Pages.AddMeetingPage"
-             xmlns:models="clr-namespace:MeetingApp.Models"
-             xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             xmlns:dtos="clr-namespace:MeetingApp.Models.Dtos"
-             Title="Nová schůzka">
+             x:Name="ThisPage">
+
+ 
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="10">
+        <VerticalStackLayout Padding="10" Spacing="15">
+
             <Entry Placeholder="Název schůzky" Text="{Binding Title}" />
 
             <DatePicker Date="{Binding Date}" />
+
             <TimePicker Time="{Binding StartTime}" />
             <TimePicker Time="{Binding EndTime}" />
 
-            <Label Text="Barva:" />
-            <Entry Text="{Binding ColorHex}" />
+            <Label Text="Barva schůzky (hex)" />
+            <Entry Placeholder="#0078D7" Text="{Binding ColorHex}" />
 
-            <Label Text="Pravidelná?" />
+            <Label Text="Opakování schůzky" />
             <Switch IsToggled="{Binding IsRegular}" />
 
-            <Picker ItemsSource="{Binding RecurrenceOptions}"
-                    SelectedItem="{Binding SelectedRecurrence}"
-                    IsVisible="{Binding IsRegular}" />
+            <Picker Title="Vyberte opakování"
+                    ItemsSource="{Binding RecurrenceOptions}"
+                    SelectedItem="{Binding SelectedRecurrence}" />
 
-            <DatePicker Date="{Binding EndDate}"
-                        IsVisible="{Binding IsRegular}" />
-            <Image Source="search.png"
-       HeightRequest="24"
-       WidthRequest="24"
-       HorizontalOptions="End"
-       Margin="0,10"
-       GestureRecognizers="{TapGestureRecognizer Command={Binding ToggleSearchCommand}}" />
+            <DatePicker Date="{Binding EndDate}" />
 
-            <!-- Search UI -->
-            <StackLayout IsVisible="{Binding IsSearchVisible}">
-                <SearchBar Text="{Binding SearchText}"
-               Placeholder="Hledat účastníka..." />
+            <SearchBar Placeholder="Hledat účastníky"
+                       Text="{Binding SearchText}" />
 
-                <CollectionView ItemsSource="{Binding FilteredUsers}"
-                    HeightRequest="150">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="dtos:UserDto">
-                            <Label Text="{Binding FullName}">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AddMeetingViewModel}}, Path=SelectUserCommand}"
-                                           CommandParameter="{Binding .}" />
-                                </Label.GestureRecognizers>
-                            </Label>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </StackLayout>
+            <Label Text="Dostupní účastníci:" FontAttributes="Bold" />
 
-            <Button Text="Uložit" Command="{Binding SaveCommand}" />
+            <CollectionView ItemsSource="{Binding FilteredUsers}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="10">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding BindingContext.ToggleUserSelectionCommand, Source={x:Reference ThisPage}}"
+                                                      CommandParameter="{Binding .}" />
+                            </Grid.GestureRecognizers>
+                            <Label Text="{Binding FirstName}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Text="Vybraní účastníci:" FontAttributes="Bold" />
+
+            <CollectionView ItemsSource="{Binding SelectedUsers}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="5" ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label Grid.Column="0" Text="{Binding FirstName}" />
+
+                            <Button Grid.Column="1"
+                                    Text="Odebrat"
+                                    Command="{Binding BindingContext.ToggleUserSelectionCommand, Source={x:Reference ThisPage}}"
+                                    CommandParameter="{Binding .}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Button Text="Uložit schůzku"
+                    Command="{Binding SaveCommand}" />
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

@@ -1,3 +1,4 @@
+using MeetingApp.Models.Dtos;
 using MeetingApp.Models.ViewModels;
 
 
@@ -10,4 +11,5 @@ public partial class AddMeetingPage : ContentPage
 		InitializeComponent();
 		BindingContext = vm;
     }
+    
 }
