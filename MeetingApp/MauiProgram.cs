@@ -8,46 +8,59 @@ using MeetingApp.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace MeetingApp
+namespace MeetingApp;
+
+public static class MauiProgram
 {
-    public static class MauiProgram
+    public static MauiApp CreateMauiApp()
     {
-        public static MauiApp CreateMauiApp()
-        {
-            var builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
-                .UseMauiCommunityToolkit()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                });
+        var builder = MauiApp.CreateBuilder();
+
+        builder
+            .UseMauiApp<App>()
+            .UseMauiCommunityToolkit()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+            });
 
 #if DEBUG
-            builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 
-            // Services
-            builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri("http://localhost:5091") });
-            builder.Services.AddSingleton<MeetingService>();
-            builder.Services.AddSingleton<IAuthService, AuthService>();
-            builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>();
+        // ⬇️ Před DI registrací: načteme session synchronně
+        var session = UserSession.Instance;
+        Task.Run(() => session.LoadAsync()).Wait(); // synchronní fallback
 
+        // Services
+        builder.Services.AddSingleton(sp =>
+        {
+            var client = new HttpClient
+            {
+                BaseAddress = new Uri("http://192.168.0.178:5000")
+            };
+            return client;
+        });
 
-            // ViewModels
-            builder.Services.AddTransient<LoginViewModel>();
-            builder.Services.AddTransient<CalendarViewModel>();
-            builder.Services.AddTransient<AppShellViewModel>();
-            builder.Services.AddTransient<MeetingDetailViewModel>();
+        builder.Services.AddSingleton<MeetingService>();
+        builder.Services.AddSingleton<IAuthService, AuthService>();
+        builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>();
+        builder.Services.AddSingleton<AuthGuardService>();
+        builder.Services.AddSingleton(session); // session je už načtená
 
-            // Pages
-            builder.Services.AddTransient<AppShell>();
-            builder.Services.AddTransient<LoginPage>();
-            builder.Services.AddTransient<CalendarPage>();
-            builder.Services.AddTransient<MeetingDetailPage>();
+        // ViewModels
+        builder.Services.AddTransient<LoginViewModel>();
+        builder.Services.AddTransient<CalendarViewModel>();
+        builder.Services.AddTransient<AppShellViewModel>();
+        builder.Services.AddTransient<MeetingDetailViewModel>();
 
-            return builder.Build();
-        }
+        // Pages
+        builder.Services.AddSingleton<AppShell>();
+        builder.Services.AddTransient<LoginPage>();
+        builder.Services.AddTransient<CalendarPage>();
+        builder.Services.AddTransient<MeetingDetailPage>();
+
+        return builder.Build();
     }
 }

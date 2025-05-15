@@ -19,7 +19,7 @@
 
             <Label Text="{Binding ErrorMessage}"
                    TextColor="Red"
-                   IsVisible="{Binding ErrorMessage}" />
+                   IsVisible="{Binding HasError}" />
 
             <Button Text="Přihlásit se"
                     Command="{Binding LoginCommand}"

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:MeetingApp.Models.ViewModels"
              x:Class="MeetingApp.Pages.CalendarPage"
+             xmlns:auth="clr-namespace:MeetingApp.Services.Auth"
              x:DataType="vm:CalendarViewModel">
 
     <ScrollView>
@@ -386,7 +387,7 @@
             
 
             <!-- Přidat schůzku -->
-            <Button Text="+" Command="{Binding AddMeetingClickedCommand}" Grid.Row="2" WidthRequest="50" HeightRequest="50" CornerRadius="25"
+            <Button Text="+" Command="{Binding AddMeetingClickedCommand}" IsVisible="{x:Static auth:UserSession.IsAdminCheck}" Grid.Row="2" WidthRequest="50" HeightRequest="50" CornerRadius="25"
                     BackgroundColor="OrangeRed" TextColor="White" FontSize="24" HorizontalOptions="End" VerticalOptions="End" />
         </Grid>
     </ScrollView>

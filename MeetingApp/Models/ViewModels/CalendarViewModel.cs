@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using MeetingApp.Models.Dtos;
 using MeetingApp.Pages;
 using MeetingApp.Services;
+using MeetingApp.Services.Auth;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -12,22 +13,27 @@ namespace MeetingApp.Models.ViewModels;
 public partial class CalendarViewModel : ObservableObject
 {
     private readonly MeetingService _meetingService;
+    private readonly AuthGuardService _authGuard;
 
+    [ObservableProperty] private bool isAdmin;
+   
     [ObservableProperty] private DateTime selectedDate = DateTime.Today;
     [ObservableProperty] private ObservableCollection<MeetingDto> meetings = new();
     [ObservableProperty] private DateTime currentWeekStart = DateTime.Today.StartOfWeek(DayOfWeek.Monday);
     [ObservableProperty] private ObservableCollection<DayModel> days = new();
     [ObservableProperty] private string weekRange = string.Empty;
 
-    public CalendarViewModel(MeetingService meetingService)
+    public CalendarViewModel(MeetingService meetingService, AuthGuardService authGuard)
     {
         _meetingService = meetingService;
+        _authGuard = authGuard;
     }
 
     public async Task LoadMeetings()
     {
         try
         {
+            
             var list = await _meetingService.GetMeetingsAsync();
             Meetings = new ObservableCollection<MeetingDto>(list);
 

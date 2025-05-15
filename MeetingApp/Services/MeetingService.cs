@@ -55,7 +55,16 @@ public class MeetingService
     {
         try
         {
+            foreach (var header in _httpClient.DefaultRequestHeaders)
+            {
+                Debug.WriteLine($" Header: {header.Key} = {string.Join(", ", header.Value)}");
+            }
             var response = await _httpClient.GetAsync("/api/meetings");
+            if (!response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine($"[❌ API Error] {response.StatusCode}: {content}");
+            }
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();

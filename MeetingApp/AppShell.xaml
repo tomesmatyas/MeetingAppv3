@@ -6,12 +6,16 @@
     xmlns:local="clr-namespace:MeetingApp"
     xmlns:pages="clr-namespace:MeetingApp.Pages"
     xmlns:vm="clr-namespace:MeetingApp.Models.ViewModels"
+    xmlns:auth="clr-namespace:MeetingApp.Services.Auth"
     Shell.FlyoutBehavior="Flyout"
     Title="MeetingApp">
+    
 
-  
+
     <Shell.FlyoutHeader>
-        <StackLayout Padding="10">
+        <StackLayout Padding="10" BackgroundColor="Gray">
+            <Label Text="{Binding Source={x:Static auth:UserSession.Instance}, Path=Username}" />
+            <Label Text="{Binding Session.Username}" />
             <Label Text="Menu" FontSize="24" FontAttributes="Bold" />
             <Button Text="Odhlásit se"
                     Command="{Binding LogoutCommand}" />

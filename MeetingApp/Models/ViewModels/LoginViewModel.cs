@@ -12,31 +12,58 @@ namespace MeetingApp.Models.ViewModels;
 
 public partial class LoginViewModel : ObservableObject
 {
-   
+    private readonly MeetingService _meetingService;
     private readonly IAuthService _authService;
 
     [ObservableProperty] private string username = string.Empty;
     [ObservableProperty] private string password = string.Empty;
-    [ObservableProperty] private string errorMessage = string.Empty;
 
-    public LoginViewModel(IAuthService authService)
+    public LoginViewModel(IAuthService authService, MeetingService meetingService)
     {
         _authService = authService;
+        _meetingService = meetingService;
     }
 
+    [ObservableProperty]
+    private string errorMessage;
+
+    public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
+
+    partial void OnErrorMessageChanged(string value)
+    {
+        OnPropertyChanged(nameof(HasError)); // aktualizuje bindi na IsVisible
+    }
+    
     [RelayCommand]
     private async Task LoginAsync()
     {
         ErrorMessage = string.Empty;
 
-        var success = await _authService.LoginAsync(Username, Password);
-        if (success)
+        try
         {
-            await Shell.Current.GoToAsync("//CalendarPage");
+            var success = await _authService.LoginAsync(Username, Password);
+
+            if (success)
+            {
+                await _meetingService.InitAsync(); // <== DÙLEŽITÉ
+                await Shell.Current.GoToAsync("//CalendarPage");
+            }
+            else
+            {
+                ErrorMessage = "Neplatné pøihlašovací údaje.";
+            }
         }
-        else
+        catch (HttpRequestException ex)
         {
-            ErrorMessage = "Neplatné pøihlašovací údaje.";
+            ErrorMessage = $"Nepodaøilo se pøipojit k serveru: {ex.Message}";
+            Debug.WriteLine($".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.");
+            Debug.WriteLine($" HttpRequestException ? {ex}");
+            Debug.WriteLine($".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Chyba: " + ex.Message;
         }
     }
+
 }

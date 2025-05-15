@@ -9,14 +9,21 @@ namespace MeetingApp
     {
         //private readonly IServiceProvider _serviceProvider;
         //private readonly MeetingService _meetingService;
-
-        public App()
+        private readonly AppShell _shell;
+        private readonly UserSession _userSession;
+        public App(AppShell shell, UserSession userSession)
         {
             InitializeComponent();
+            _shell = shell;
+            _userSession = userSession;
+
+            // Volání přes instanci
+            Task.Run(async () => await _userSession.LoadAsync());
+
             //_serviceProvider = serviceProvider;
             //_meetingService = meetingService;
 
-           // SetMainPageBasedOnLogin();
+            // SetMainPageBasedOnLogin();
 
             // Automatická synchronizace offline dat
             //Task.Run(async () =>
@@ -48,7 +55,7 @@ namespace MeetingApp
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            return new Window(_shell);
         }
     }
 }
