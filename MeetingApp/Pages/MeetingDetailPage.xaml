@@ -12,16 +12,16 @@
         <VerticalStackLayout Padding="20" Spacing="15">
 
             <Label Text="Název schůzky"/>
-            <Entry Text="{Binding SelectedMeeting.Title}" Placeholder="Zadejte název"/>
+            <Entry Text="{Binding Title}" Placeholder="Zadejte název"/>
 
             <Label Text="Datum"/>
-            <DatePicker Date="{Binding SelectedMeeting.Date}"/>
+            <DatePicker Date="{Binding Date}"/>
 
             <Label Text="Začátek"/>
-            <TimePicker Time="{Binding SelectedMeeting.StartTime}" />
+            <TimePicker Time="{Binding StartTime}" />
 
             <Label Text="Konec"/>
-            <TimePicker Time="{Binding SelectedMeeting.EndTime}"/>
+            <TimePicker Time="{Binding EndTime}"/>
 
             <Label Text="Opakování"/>
             <Picker ItemsSource="{Binding RecurrencePatterns}"
@@ -64,7 +64,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Button Text="Uložit změny" Command="{Binding SaveChangesCommand}"/>
+            <Button Text="Uložit změny" Command="{Binding SaveChangesButtonCommand}"/>
             <Button Text="Smazat schůzku" Command="{Binding DeleteMeetingCommand}" BackgroundColor="DarkRed" TextColor="White"/>
 
         </VerticalStackLayout>

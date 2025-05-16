@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Linq;
+using MeetingApp.Services.Helper;
 
 namespace MeetingApp.Models.ViewModels;
 
@@ -39,16 +40,18 @@ public partial class MeetingDetailViewModel : ObservableObject
     public MeetingDetailViewModel(MeetingService meetingService)
     {
         _meetingService = meetingService;
+        _ = LoadAsync();
     }
 
     public async Task LoadAsync()
     {
 
         await _meetingService.InitAsync();
+        var meeting = await _meetingService.GetMeetingByIdAsync(MeetingId);
         if (MeetingId <= 0) return;
 
 
-        var meeting = await _meetingService.GetMeetingByIdAsync(MeetingId);
+        
         Debug.WriteLine($"Načtená schůzka: {meeting.Title} na {meeting.Date:dd.MM.yyyy}");
         foreach (var p in meeting.Participants)
         {
@@ -124,6 +127,14 @@ public partial class MeetingDetailViewModel : ObservableObject
         if (!AllUsers.Any(u => u.Id == user.Id))
             AllUsers.Add(user);
     }
+    [RelayCommand]
+    public async Task SaveChangesButtonAsync()
+    {
+        SaveChangesAsync();
+        WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
+        await Shell.Current.GoToAsync("..", true);
+        
+    }
 
     [RelayCommand]
     public async Task SaveChangesAsync()
@@ -151,6 +162,24 @@ public partial class MeetingDetailViewModel : ObservableObject
 
         await _meetingService.UpdateMeetingAsync(meeting);
     }
+    [RelayCommand]
+    public async Task DeleteMeetingAsync()
+    {
+        if (SelectedMeeting != null)
+        {
+            var success = await _meetingService.DeleteMeetingAsync(SelectedMeeting.Id);
+            if (success)
+            {
+                WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
+                if (SelectedMeeting != null)
+                {
+                    await _meetingService.DeleteMeetingAsync(SelectedMeeting.Id);
+                    MeetingNotificationHelper.CancelNotification(SelectedMeeting.Id);
+                }
+                await Shell.Current.GoToAsync("..", true);
+            }
+        }
+    }
 
     partial void OnPatternChanged(string value)
     {
@@ -176,20 +205,6 @@ public partial class MeetingDetailViewModel : ObservableObject
 
         SelectedMeeting.EndDate = value;
         _ = SaveChangesAsync();
-    }
-
-    [RelayCommand]
-    public async Task DeleteMeetingAsync()
-    {
-        if (SelectedMeeting != null)
-        {
-            var success = await _meetingService.DeleteMeetingAsync(SelectedMeeting.Id);
-            if (success)
-            {
-                WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
-                await Shell.Current.GoToAsync("..", true);
-            }
-        }
     }
 
     [RelayCommand]

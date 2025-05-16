@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using MeetingApp.Models;
 using MeetingApp.Models.Dtos;
 using MeetingApp.Pages;
 using MeetingApp.Services;
@@ -16,7 +17,6 @@ public partial class CalendarViewModel : ObservableObject
     private readonly AuthGuardService _authGuard;
 
     [ObservableProperty] private bool isAdmin;
-   
     [ObservableProperty] private DateTime selectedDate = DateTime.Today;
     [ObservableProperty] private ObservableCollection<MeetingDto> meetings = new();
     [ObservableProperty] private DateTime currentWeekStart = DateTime.Today.StartOfWeek(DayOfWeek.Monday);
@@ -33,7 +33,6 @@ public partial class CalendarViewModel : ObservableObject
     {
         try
         {
-            
             var list = await _meetingService.GetMeetingsAsync();
             Meetings = new ObservableCollection<MeetingDto>(list);
 
@@ -50,12 +49,15 @@ public partial class CalendarViewModel : ObservableObject
     }
 
     private void UpdateCalendar()
-    {
+        {
         var newDays = new ObservableCollection<DayModel>();
+        foreach (var day in Days)
+            day.Meetings.Clear();
         Days.Clear();
 
         var allMeetings = Meetings.ToList();
         var recurringInstances = GenerateRecurringMeetingsForWeek(CurrentWeekStart);
+
         allMeetings.AddRange(recurringInstances);
 
         int baseHour = 8;
@@ -67,18 +69,42 @@ public partial class CalendarViewModel : ObservableObject
             var day = CurrentWeekStart.AddDays(i);
             var displays = new ObservableCollection<MeetingDisplay>();
 
-            foreach (var meeting in allMeetings.Where(m => m.Date.Date == day.Date))
+            var dailyMeetings = allMeetings.Where(m => m.Date.Date == day.Date).ToList();
+            var meetingDisplays = new List<MeetingDisplay>();
+
+            foreach (var meeting in dailyMeetings)
             {
                 int gridRow = Math.Max(0, (int)((meeting.StartTime.TotalMinutes - baseMinutes) / blockMinutes));
                 int rowSpan = Math.Max(1, (int)((meeting.EndTime - meeting.StartTime).TotalMinutes / blockMinutes));
 
-                displays.Add(new MeetingDisplay
+                meetingDisplays.Add(new MeetingDisplay
                 {
                     Meeting = meeting,
                     GridRow = gridRow,
                     RowSpan = rowSpan
                 });
             }
+
+            // Překryvy - korektní detekce na základě všech kolizí
+            var assigned = new HashSet<MeetingDisplay>();
+
+            foreach (var meeting in meetingDisplays)
+            {
+                if (assigned.Contains(meeting)) continue;
+
+                var overlapping = meetingDisplays.Where(m =>
+                    (m.StartTime < meeting.EndTime && m.EndTime > meeting.StartTime)).ToList();
+
+                for (int k = 0; k < overlapping.Count; k++)
+                {
+                    overlapping[k].Column = k;
+                    overlapping[k].TotalColumns = overlapping.Count;
+                    assigned.Add(overlapping[k]);
+                }
+            }
+
+            foreach (var d in meetingDisplays)
+                displays.Add(d);
 
             newDays.Add(new DayModel
             {
@@ -93,10 +119,16 @@ public partial class CalendarViewModel : ObservableObject
         WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
     }
 
+
     private List<MeetingDto> GenerateRecurringMeetingsForWeek(DateTime weekStart)
     {
         var result = new List<MeetingDto>();
         var weekEnd = weekStart.AddDays(7);
+
+        // Vytvoříme množinu unikátních klíčů
+        var existingKeys = new HashSet<string>(
+            Meetings.Select(m => $"{m.Title}|{m.Date.Date}|{m.StartTime}-{m.EndTime}")
+        );
 
         foreach (var m in Meetings.Where(m => m.IsRegular && m.Recurrence != null))
         {
@@ -124,22 +156,29 @@ public partial class CalendarViewModel : ObservableObject
 
                     if (isValid)
                     {
-                        result.Add(new MeetingDto
+                        var key = $"{m.Title}|{dateIterator.Date}|{m.StartTime}-{m.EndTime}";
+
+                        if (!existingKeys.Contains(key))
                         {
-                            Id = m.Id,
-                            Title = m.Title,
-                            Date = dateIterator,
-                            StartTime = m.StartTime,
-                            EndTime = m.EndTime,
-                            ColorHex = m.ColorHex,
-                            IsRegular = m.IsRegular,
-                            RecurrenceId = m.RecurrenceId,
-                            Recurrence = m.Recurrence,
-                            Participants = m.Participants,
-                            CreatedByUserId = m.CreatedByUserId,
-                            CreatedByUser = m.CreatedByUser,
-                            EndDate = m.EndDate
-                        });
+                            existingKeys.Add(key); // Zaznamenáme jako přidané
+
+                            result.Add(new MeetingDto
+                            {
+                                Id = -1, // -1 znamená "virtuální opakování"
+                                Title = m.Title,
+                                Date = dateIterator,
+                                StartTime = m.StartTime,
+                                EndTime = m.EndTime,
+                                ColorHex = m.ColorHex,
+                                IsRegular = m.IsRegular,
+                                RecurrenceId = m.RecurrenceId,
+                                Recurrence = m.Recurrence,
+                                Participants = m.Participants,
+                                CreatedByUserId = m.CreatedByUserId,
+                                CreatedByUser = m.CreatedByUser,
+                                EndDate = m.EndDate
+                            });
+                        }
                     }
                 }
                 dateIterator = dateIterator.AddDays(1);
@@ -171,8 +210,6 @@ public partial class CalendarViewModel : ObservableObject
         await LoadMeetings();
         await Shell.Current.GoToAsync(nameof(AddMeetingPage));
     }
-
-    
 }
 
 public static class DateTimeExtensions

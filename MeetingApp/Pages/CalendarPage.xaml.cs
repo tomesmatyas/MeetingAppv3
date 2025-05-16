@@ -1,3 +1,4 @@
+// File: CalendarPage.xaml.cs (pøidáno resetování Days pøed generací nových dat)
 using CommunityToolkit.Mvvm.Messaging;
 using MeetingApp.Models;
 using MeetingApp.Models.ViewModels;
@@ -9,54 +10,48 @@ namespace MeetingApp.Pages;
 public partial class CalendarPage : ContentPage
 {
     private readonly CalendarViewModel _viewModel;
+    private bool _initialized = false;
+
     public CalendarPage(CalendarViewModel vm)
     {
         InitializeComponent();
         _viewModel = vm;
         BindingContext = _viewModel;
+
         WeakReferenceMessenger.Default.Register<RefreshCalendarMessage>(this, (r, m) =>
         {
             RefreshCalendar();
         });
     }
-    private void RefreshCalendar()
-    {
-        List<Grid> dayGrids = new() { DayGrid0, DayGrid1, DayGrid2, DayGrid3, DayGrid4, DayGrid5, DayGrid6 };
-
-        for (int i = 0; i < 7; i++)
-        {
-            dayGrids[i].Children.Clear();
-            AddMeetingsToGrid(dayGrids[i], _viewModel.Days[i]);
-        }
-    }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+            await _viewModel.LoadMeetings();
+    }
 
-        await _viewModel.LoadMeetings();
-        Debug.WriteLine($"Poèet dnù: {_viewModel.Days.Count}");
-        for (int i = 0; i < _viewModel.Days.Count; i++)
-        {
-            Debug.WriteLine($"Den {i}: {_viewModel.Days[i].Date:dd.MM.yyyy}, schùzek: {_viewModel.Days[i].Meetings.Count}");
-        }
-        List<Grid> dayGrids = new() { DayGrid0, DayGrid1, DayGrid2, DayGrid3, DayGrid4, DayGrid5, DayGrid6 };
-
-        foreach (var grid in dayGrids)
-            grid.Children.Clear();
+    private void RefreshCalendar()
+    {
+        List<Grid> layouts = new() { DayGrid0, DayGrid1, DayGrid2, DayGrid3, DayGrid4, DayGrid5, DayGrid6 };
 
         for (int i = 0; i < 7; i++)
-            AddMeetingsToGrid(dayGrids[i], _viewModel.Days[i]);
+        {
+            var dayGrid = layouts[i];
+            dayGrid.Children.Clear();
+            dayGrid.ColumnDefinitions.Clear();
+
+            int maxCols = _viewModel.Days[i].Meetings.Any() ? _viewModel.Days[i].Meetings.Max(m => m.TotalColumns) : 1;
+            for (int c = 0; c < maxCols; c++)
+                dayGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            AddMeetingsToGrid(dayGrid, _viewModel.Days[i]);
+        }
     }
+
     private void AddMeetingsToGrid(Grid grid, DayModel day)
     {
-        grid.Children.Clear();
-        Debug.WriteLine($" Renderuji den: {day.Date:dd.MM.yyyy} ({day.Meetings.Count} schùzek)");
-
         foreach (var meeting in day.Meetings)
         {
-            Debug.WriteLine($" {meeting.Title} {meeting.TimeRange}");
-            Debug.WriteLine($"[DEBUG] Title = '{meeting.Title}', Time = {meeting.TimeRange}, Id = {meeting.Id}");
             var frame = new Frame
             {
                 BackgroundColor = Color.FromArgb(meeting.ColorHex),
@@ -67,24 +62,25 @@ public partial class CalendarPage : ContentPage
                 {
                     Children =
                     {
-                        new Label { Text = meeting.Title, FontSize = 12, TextColor = Colors.White },
-                        new Label { Text = meeting.TimeRange, FontSize = 10, TextColor = Colors.White },
-                        new Label { Text = meeting.ParticipantInfo, FontSize = 10, TextColor = Colors.White }
+                        new Label { Text = meeting.Title, FontSize = 5, TextColor = Colors.White },
+                        new Label { Text = meeting.TimeRange, FontSize = 5, TextColor = Colors.White },
+                        new Label { Text = meeting.ParticipantInfo, FontSize = 5, TextColor = Colors.White }
                     }
                 }
-
             };
 
             var tap = new TapGestureRecognizer();
             tap.Tapped += async (s, e) =>
             {
-
                 await Shell.Current.GoToAsync($"{nameof(MeetingDetailPage)}?id={meeting.Id}");
             };
             frame.GestureRecognizers.Add(tap);
 
+            Grid.SetColumn(frame, meeting.Column);
+            Grid.SetColumnSpan(frame, 1);
             Grid.SetRow(frame, meeting.GridRow);
             Grid.SetRowSpan(frame, meeting.RowSpan);
+
             grid.Children.Add(frame);
         }
     }

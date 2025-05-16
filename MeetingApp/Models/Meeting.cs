@@ -36,6 +36,10 @@ namespace MeetingApp.Models
         public TimeSpan EndTime => Meeting.EndTime;
         public string TimeRange => $"{Meeting.StartTime:hh\\:mm}–{Meeting.EndTime:hh\\:mm}";
         public string ParticipantInfo => Meeting.Participants?.Count.ToString() ?? "0";
+
+        // Přidané pro překryvy
+        public int Column { get; set; }
+        public int TotalColumns { get; set; }
     }
 
     public class DayModel   

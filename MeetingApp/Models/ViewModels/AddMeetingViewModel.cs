@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MeetingApp.Models.Dtos;
 using MeetingApp.Services;
 using MeetingApp.Services.Auth;
+using MeetingApp.Services.Helper;
 using Microsoft.Maui.Graphics;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -118,9 +119,11 @@ public partial class AddMeetingViewModel : ObservableObject
         };
 
         try
-        {
+        {   
+
             Debug.WriteLine(meeting.Participants.Count);
             await _meetingService.CreateMeetingAsync(meeting);
+            await MeetingNotificationHelper.ScheduleNotificationAsync(meeting);
             await Shell.Current.GoToAsync("..");
         }
         catch (Exception ex)

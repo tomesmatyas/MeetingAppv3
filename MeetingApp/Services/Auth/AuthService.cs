@@ -72,9 +72,9 @@ public class AuthService : IAuthService
 
     public async Task LogoutAsync()
     {
-        await SecureStorage.Default.SetAsync("access_token", string.Empty);
-        await SecureStorage.Default.SetAsync("user_id", string.Empty);
-        await SecureStorage.Default.SetAsync("user_name", string.Empty);
+        SecureStorage.Default.Remove("access_token");
+        SecureStorage.Default.Remove("user_id");
+        SecureStorage.Default.Remove("user_name");
 
         _user = null;
         await Shell.Current.GoToAsync("//LoginPage", true);

@@ -37,9 +37,6 @@
             Route="MeetingDetailPage" 
             ContentTemplate="{DataTemplate pages:MeetingDetailPage}" />
 
-        <ShellContent 
-            Title="Test"
-            Route="TestPage" 
-            ContentTemplate="{DataTemplate pages:TestPage}" />
+        
     
 </Shell>

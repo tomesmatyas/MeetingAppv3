@@ -47,7 +47,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Label Text="Vybraní účastníci:" FontAttributes="Bold" />
+            <Label Text="Vybraní účastníci:"  FontAttributes="Bold" />
 
             <CollectionView ItemsSource="{Binding SelectedUsers}">
                 <CollectionView.ItemTemplate>

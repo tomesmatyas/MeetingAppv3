@@ -4,9 +4,9 @@ using MeetingApp.Models.ViewModels;
 using MeetingApp.Pages;
 using MeetingApp.Services;
 using MeetingApp.Services.Auth;
-using MeetingApp.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Plugin.LocalNotification;
 
 namespace MeetingApp;
 
@@ -19,6 +19,7 @@ public static class MauiProgram
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
+            .UseLocalNotification()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -38,7 +39,7 @@ public static class MauiProgram
         {
             var client = new HttpClient
             {
-                BaseAddress = new Uri("http://localhost:5091")
+                BaseAddress = new Uri("http://192.168.0.178:5000")//192.168.0.178 localhost:5091
             };
             return client;
         });

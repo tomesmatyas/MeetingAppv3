@@ -69,6 +69,7 @@
     <PackageReference Include="Mopups" Version="1.3.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="nor0x.Maui.ColorPicker" Version="2.0.4" />
+    <PackageReference Include="Plugin.LocalNotification" Version="12.0.1" />
     <PackageReference Include="Syncfusion.Maui.Calendar" Version="29.1.41" />
     <PackageReference Include="CommunityToolkit.Maui" Version="11.2.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
@@ -94,9 +95,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\MeetingDetailPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\TestPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
