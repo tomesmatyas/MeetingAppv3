@@ -48,7 +48,7 @@ public partial class MeetingDetailViewModel : ObservableObject
 
         await _meetingService.InitAsync();
         var meeting = await _meetingService.GetMeetingByIdAsync(MeetingId);
-        if (MeetingId <= 0) return;
+         if (MeetingId <= 0) return;
 
 
         

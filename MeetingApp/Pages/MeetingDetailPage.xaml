@@ -8,47 +8,67 @@
              xmlns:dtos="clr-namespace:MeetingApp.Models.Dtos"
              Title="Detail Schůzky">
 
-    <ScrollView>
+    <ContentPage.ToolbarItems>
+        
+        <ToolbarItem Text="Uložit" Command="{Binding SaveChangesButtonCommand}" />
+        <ToolbarItem Text="Smazat" Command="{Binding DeleteMeetingCommand}" Priority="1" Order="Secondary" />
+    </ContentPage.ToolbarItems>
+    <Grid>
+        <ScrollView x:Name="MainScrollView">
         <VerticalStackLayout Padding="20" Spacing="15">
-
-            <Label Text="Název schůzky"/>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Label Text="Název schůzky" Grid.Column="0"/>
+                    <ActivityIndicator  Grid.Column="1" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+                </Grid>
+            
             <Entry Text="{Binding Title}" Placeholder="Zadejte název"/>
 
-            <Label Text="Datum"/>
-            <DatePicker Date="{Binding Date}"/>
-
-            <Label Text="Začátek"/>
-            <TimePicker Time="{Binding StartTime}" />
-
-            <Label Text="Konec"/>
-            <TimePicker Time="{Binding EndTime}"/>
+            <Label Text="Datum a čas"/>
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                <DatePicker Date="{Binding Date}" Grid.Column="0"/>
+                <TimePicker Time="{Binding StartTime}" Grid.Column="1"/>
+                <TimePicker Time="{Binding EndTime}" Grid.Column="2"/>
+            </Grid>
 
             <Label Text="Opakování"/>
-            <Picker ItemsSource="{Binding RecurrencePatterns}"
-                    SelectedItem="{Binding Pattern}" />
+            <Grid ColumnDefinitions="*,*">
+                <Picker Grid.Column="0"
+            ItemsSource="{Binding RecurrencePatterns}"
+            SelectedItem="{Binding Pattern}" />
+                <DatePicker Grid.Column="1"
+                Date="{Binding EndDate}"
+                MinimumDate="{x:Static sys:DateTime.Today}">
+                    <DatePicker.Triggers>
+                        <DataTrigger TargetType="DatePicker" Binding="{Binding Pattern}" Value="None">
+                            <Setter Property="IsVisible" Value="False" />
+                        </DataTrigger>
+                    </DatePicker.Triggers>
+                </DatePicker>
+            </Grid>
 
-            <Label Text="Do kdy opakovat"/>
-            <DatePicker Date="{Binding EndDate}"
-                        MinimumDate="{x:Static sys:DateTime.Today}" />
+            <VerticalStackLayout x:Name="AddUserSectionScroll">
+                    <SearchBar  x:Name="SearchBarControl" 
+                                Text="{Binding SearchText}"
+                       Placeholder="Hledat účastníka..."
+                       Focused="OnSearchBarFocused"
+                           />
 
-            <!-- Přidání účastníka -->
-            <SearchBar Text="{Binding SearchText}"
-                       Placeholder="Hledat účastníka..." />
-            <CollectionView ItemsSource="{Binding FilteredUsers}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="dtos:UserDto">
-                        <Label Text="{Binding FullName}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer
+                <CollectionView ItemsSource="{Binding FilteredUsers}" HeightRequest="200">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="dtos:UserDto">
+                            <Label Text="{Binding FullName}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MeetingDetailViewModel}}, Path=SelectUserCommand}"
                                     CommandParameter="{Binding .}" />
-                            </Label.GestureRecognizers>
-                        </Label>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-            <!-- Účastníci -->
-            <Label Text="Účastníci" FontAttributes="Bold"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+        </VerticalStackLayout>
+
+        <Label Text="Účastníci" FontAttributes="Bold"/>
             <CollectionView ItemsSource="{Binding Participants}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="dtos:UserDto">
@@ -56,17 +76,19 @@
                             <Label Text="{Binding FullName}" Grid.Column="0"/>
                             <Label Text="{Binding Email}" Grid.Column="1"/>
                             <Button Text="🗑"
-                        Grid.Column="2"
-                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MeetingDetailViewModel}}, Path=RemoveParticipantCommand}"
-                        CommandParameter="{Binding .}" />
+                                    Grid.Column="2"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MeetingDetailViewModel}}, Path=RemoveParticipantCommand}"
+                                    CommandParameter="{Binding .}" />
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-
-            <Button Text="Uložit změny" Command="{Binding SaveChangesButtonCommand}"/>
-            <Button Text="Smazat schůzku" Command="{Binding DeleteMeetingCommand}" BackgroundColor="DarkRed" TextColor="White"/>
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
 
         </VerticalStackLayout>
     </ScrollView>
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Tapped="OnPageTapped"/>
+        </Grid.GestureRecognizers>
+    </Grid>
 </ContentPage>

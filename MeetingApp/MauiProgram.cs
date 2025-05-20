@@ -39,7 +39,7 @@ public static class MauiProgram
         {
             var client = new HttpClient
             {
-                BaseAddress = new Uri("http://192.168.0.178:5000")//192.168.0.178 localhost:5091
+                BaseAddress = new Uri("http://192.168.0.14:7195")//192.168.0.178 localhost:5091
             };
             return client;
         });
