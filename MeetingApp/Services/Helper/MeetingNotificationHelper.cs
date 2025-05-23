@@ -8,7 +8,7 @@ public static class MeetingNotificationHelper
 {
     public static async Task ScheduleNotificationAsync(MeetingDto meeting)
     {
-        var notifyTime = meeting.Date.Add(meeting.StartTime).AddMinutes(-15);
+        var notifyTime = meeting.Date.Add(meeting.StartTime).AddMinutes(-30);
 
         if (notifyTime > DateTime.Now)
         {

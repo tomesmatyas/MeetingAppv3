@@ -76,11 +76,16 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.60" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.4" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
+		<PackageReference Include="xunit.extensibility.core" Version="2.9.3" />
+		<PackageReference Include="xunit.extensibility.execution" Version="2.9.3" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Compile Update="Pages\AddMeetingPage.xaml.cs">
 	    <DependentUpon>AddMeetingPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\RegistrationPage.xaml.cs">
+	    <DependentUpon>RegistrationPage.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
@@ -95,6 +100,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\MeetingDetailPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\RegistrationPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

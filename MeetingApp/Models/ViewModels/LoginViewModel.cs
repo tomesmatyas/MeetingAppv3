@@ -33,7 +33,14 @@ public partial class LoginViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(HasError)); // aktualizuje bindi na IsVisible
     }
-    
+
+    [RelayCommand]
+    private async Task GoToRegisterAsync()
+    {
+        await Shell.Current.GoToAsync("//RegistrationPage");
+    }
+
+
     [RelayCommand]
     private async Task LoginAsync()
     {

@@ -80,6 +80,23 @@ public class AuthService : IAuthService
         await Shell.Current.GoToAsync("//LoginPage", true);
     }
 
+    public async Task<bool> RegisterAsync(string username, string password, string email, string firstName, string lastName)
+    {
+        var data = new
+        {
+            username,
+            passwordHash = password, // pokud je potřeba
+            email,
+            firstName,
+            lastName
+        };
+
+        var response = await _httpClient.PostAsJsonAsync("/api/auth/register", data);
+
+        return response.IsSuccessStatusCode;
+    }
+
+
     public bool IsLoggedIn() =>
         !string.IsNullOrEmpty(Preferences.Get("access_token", string.Empty));
 

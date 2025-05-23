@@ -39,7 +39,7 @@ public static class MauiProgram
         {
             var client = new HttpClient
             {
-                BaseAddress = new Uri("http://192.168.0.14:7195")//192.168.0.178 localhost:5091
+                BaseAddress = new Uri("http://localhost:5091")//192.168.0.178 localhost:5091
             };
             return client;
         });
@@ -56,6 +56,8 @@ public static class MauiProgram
         builder.Services.AddTransient<AppShellViewModel>();
         builder.Services.AddTransient<MeetingDetailViewModel>();
         builder.Services.AddTransient<AddMeetingViewModel>();
+        builder.Services.AddTransient<RegistrationViewModel>();
+        
 
         // Pages
         builder.Services.AddSingleton<AppShell>();
@@ -63,7 +65,8 @@ public static class MauiProgram
         builder.Services.AddTransient<CalendarPage>();
         builder.Services.AddTransient<MeetingDetailPage>();
         builder.Services.AddTransient<AddMeetingPage>();
-
+        builder.Services.AddTransient<RegistrationPage>();
+        
         return builder.Build();
     }
 }

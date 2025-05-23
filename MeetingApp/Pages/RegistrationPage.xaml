@@ -1,14 +1,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:MeetingApp.Models.ViewModels"
-             x:Class="MeetingApp.Pages.LoginPage"
-             x:DataType="vm:LoginViewModel"
-             Title="Přihlášení">
+             x:Class="MeetingApp.Pages.RegistrationPage"
+             x:DataType="vm:RegistrationViewModel"
+             Title="Registrace">
 
     <ScrollView>
         <VerticalStackLayout Padding="40" Spacing="20" VerticalOptions="Center">
 
-            <Label Text="Přihlášení" FontSize="32" HorizontalOptions="Center" />
+            <Label Text="Registrace" FontSize="32" HorizontalOptions="Center" />
 
             <Entry Placeholder="Uživatelské jméno"
                    Text="{Binding Username}" />
@@ -17,15 +17,26 @@
                    Text="{Binding Password}"
                    IsPassword="True" />
 
+            <Entry Placeholder="Email"
+                   Text="{Binding Email}" />
+
+            <Entry Placeholder="Jméno"
+                   Text="{Binding FirstName}" />
+
+            <Entry Placeholder="Příjmení"
+                   Text="{Binding LastName}" />
+
             <Label Text="{Binding ErrorMessage}"
                    TextColor="Red"
                    IsVisible="{Binding HasError}" />
 
-            <Button Text="Přihlásit se"
-                    Command="{Binding LoginCommand}"
-                    />
             <Button Text="Registrovat se"
-                Command="{Binding GoToRegisterCommand}" />
+                    Command="{Binding RegisterCommand}" />
+
+            <Button Text="Zpět na přihlášení"
+                    Command="{Binding GoToLoginCommand}"
+                    BackgroundColor="#eee"
+                    TextColor="Black" />
 
             <ActivityIndicator IsRunning="{Binding IsBusy}"
                                IsVisible="{Binding IsBusy}" />

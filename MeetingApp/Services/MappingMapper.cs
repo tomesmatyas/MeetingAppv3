@@ -32,7 +32,8 @@ public static class MeetingMapper
                 Username = meeting.CreatedByUser.Username,
                 Email = meeting.CreatedByUser.Email,
                 FirstName = meeting.CreatedByUser.FirstName,
-                LastName = meeting.CreatedByUser.LastName
+                LastName = meeting.CreatedByUser.LastName,
+                Role = meeting.CreatedByUser.Role
             },
             Participants = meeting.Participants
                 .Where(p => p.User != null)
@@ -46,7 +47,8 @@ public static class MeetingMapper
                 Username = p.User.Username,
                 Email = p.User.Email,
                 FirstName = p.User.FirstName,
-                LastName = p.User.LastName
+                LastName = p.User.LastName,
+                Role = p.User.Role
             }
     }).ToList()
         };
@@ -78,7 +80,8 @@ public static class MeetingMapper
                 Username = dto.CreatedByUser.Username,
                 Email = dto.CreatedByUser.Email,
                 FirstName = dto.CreatedByUser.FirstName,
-                LastName = dto.CreatedByUser.LastName
+                LastName = dto.CreatedByUser.LastName,
+                Role = dto.CreatedByUser.Role
             },
             Participants = dto.Participants
             .Where(p => p?.User != null)
@@ -91,7 +94,8 @@ public static class MeetingMapper
                     Username = p.User.Username,
                     Email = p.User.Email,
                     FirstName = p.User.FirstName,
-                    LastName = p.User.LastName
+                    LastName = p.User.LastName,
+                    Role = p.User.Role
                 }
              }).ToList()
         };

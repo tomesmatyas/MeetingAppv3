@@ -8,4 +8,5 @@ public interface IAuthService
     Task LogoutAsync();
     bool IsLoggedIn();
     UserDto? GetCurrentUser();
+    Task<bool> RegisterAsync(string username, string password, string email, string firstName, string lastName);
 }
