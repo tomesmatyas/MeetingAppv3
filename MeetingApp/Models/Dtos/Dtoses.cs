@@ -46,6 +46,7 @@ public class MeetingDto
     public DateTime? EndDate { get; set; }
     public string? ColorHex { get; set; }
     public bool IsRegular { get; set; }
+    public int Interval { get; set; } = 1; 
 
     public int? RecurrenceId { get; set; }
     public MeetingRecurrenceDto? Recurrence { get; set; }

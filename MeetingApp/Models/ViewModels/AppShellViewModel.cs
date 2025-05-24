@@ -26,4 +26,10 @@ public partial class AppShellViewModel : ObservableObject
             await _authService.LogoutAsync();
         }
     }
+
+    [RelayCommand]
+    public async Task ProfileAsync()
+    {
+        await Shell.Current.GoToAsync("ProfilePage");
+    }
 }

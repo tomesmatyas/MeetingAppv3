@@ -259,11 +259,15 @@ public class MeetingService
         try
         {
             var response = await _httpClient.GetAsync("/api/users");
+            Debug.WriteLine("API [GetAllUsersAsync] odpověď: " + response.StatusCode);
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine("API [GetAllUsersAsync] odpověď: " + json);
                 return JsonConvert.DeserializeObject<List<UserDto>>(json) ?? new();
             }
+            
+           
         }
         catch (Exception ex)
         {
@@ -315,6 +319,29 @@ public class MeetingService
             }
         }
     }
+
+    // V MeetingService.cs:
+    public async Task<List<UserDto>> GetMyUsersAsync()
+    {
+        var response = await _httpClient.GetAsync("/api/meetings/my-users");
+        var content = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<List<UserDto>>(content) ?? new();
+    }
+
+ 
+
+    public async Task<bool> AddUserToAdminAsync(int userId)
+    {
+        var response = await _httpClient.PostAsync($"/api/meetings/add-user/{userId}", null);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> RemoveUserFromAdminAsync(int userId)
+    {
+        var response = await _httpClient.DeleteAsync($"/api/meetings/remove-user/{userId}");
+        return response.IsSuccessStatusCode;
+    }
+
 
 }
 

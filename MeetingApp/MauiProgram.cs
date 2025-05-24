@@ -48,7 +48,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<IAuthService, AuthService>();
         builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>();
         builder.Services.AddSingleton<AuthGuardService>();
-        builder.Services.AddSingleton(session); // session je už načtená
+        builder.Services.AddSingleton(session);
+        
 
         // ViewModels
         builder.Services.AddTransient<LoginViewModel>();
@@ -57,7 +58,8 @@ public static class MauiProgram
         builder.Services.AddTransient<MeetingDetailViewModel>();
         builder.Services.AddTransient<AddMeetingViewModel>();
         builder.Services.AddTransient<RegistrationViewModel>();
-        
+        builder.Services.AddTransient<ProfileViewModel>();
+
 
         // Pages
         builder.Services.AddSingleton<AppShell>();
@@ -66,7 +68,8 @@ public static class MauiProgram
         builder.Services.AddTransient<MeetingDetailPage>();
         builder.Services.AddTransient<AddMeetingPage>();
         builder.Services.AddTransient<RegistrationPage>();
-        
+        builder.Services.AddTransient<ProfilePage>();
+
         return builder.Build();
     }
 }

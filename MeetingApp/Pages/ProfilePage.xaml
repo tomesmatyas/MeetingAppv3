@@ -1,0 +1,68 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MeetingApp.Models.ViewModels"
+             xmlns:models="clr-namespace:MeetingApp.Models.Dtos"
+             x:Class="MeetingApp.Pages.ProfilePage"
+             x:DataType="vm:ProfileViewModel"
+             Title="Profil">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="18">
+            <Label Text="Můj profil" FontSize="30" HorizontalOptions="Center" />
+            <BoxView HeightRequest="1" BackgroundColor="#ddd" />
+
+            <Label Text="Uživatelské jméno:" FontAttributes="Bold"/>
+            <Label Text="{Binding CurrentUser.Username}" />
+
+            <Label Text="Jméno a příjmení:" FontAttributes="Bold"/>
+            <Label Text="{Binding CurrentUser.FullName}" />
+
+            <Label Text="E-mail:" FontAttributes="Bold"/>
+            <Label Text="{Binding CurrentUser.Email}" />
+
+            <Label Text="Role:" FontAttributes="Bold"/>
+            <Label Text="{Binding CurrentUser.Role}" />
+
+            <!-- Jen pro admina -->
+            <VerticalStackLayout Padding="15" Spacing="14">
+
+                <VerticalStackLayout x:Name="AddUserSectionScroll">
+                    <SearchBar x:Name="SearchBarControl"
+               Text="{Binding SearchText}"
+               Placeholder="Hledat uživatele..." />
+
+                    <CollectionView ItemsSource="{Binding FilteredUsers}" >
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:UserDto">
+                                <Label Text="{Binding FullName}">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer
+                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProfileViewModel}}, Path=AddUserCommand}"
+                            CommandParameter="{Binding .}" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+                <Label Text="Moji účastníci" FontAttributes="Bold"/>
+                <CollectionView ItemsSource="{Binding MyUsers}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:UserDto">
+                            <Grid Padding="5" ColumnDefinitions="*,*,Auto">
+                                <Label Text="{Binding FullName}" Grid.Column="0"/>
+                                <Label Text="{Binding Email}" Grid.Column="1"/>
+                                <Button Text="🗑"
+                        Grid.Column="2"
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProfileViewModel}}, Path=RemoveUserCommand}"
+                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

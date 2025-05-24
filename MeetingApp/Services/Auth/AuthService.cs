@@ -6,7 +6,14 @@ using System.Diagnostics;
 using System.Net.Http.Headers;
 
 namespace MeetingApp.Services.Auth;
-
+public interface IAuthService
+{
+    Task<bool> LoginAsync(string username, string password);
+    Task LogoutAsync();
+    bool IsLoggedIn();
+    UserDto? GetCurrentUser();
+    Task<bool> RegisterAsync(string username, string password, string email, string firstName, string lastName);
+}
 public class AuthService : IAuthService
 {
     private readonly HttpClient _httpClient;
@@ -64,6 +71,7 @@ public class AuthService : IAuthService
             new AuthenticationHeaderValue("Bearer", token);
 
         _user = result.User;
+
         Debug.WriteLine($" Přihlášený uživatel: {result.User.FirstName} (ID: {result.User.Id})");
 
         return true;

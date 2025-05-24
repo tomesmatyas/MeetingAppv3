@@ -9,40 +9,28 @@
     xmlns:auth="clr-namespace:MeetingApp.Services.Auth"
     Shell.FlyoutBehavior="Flyout"
     Title="MeetingApp">
-    
+
 
 
     <Shell.FlyoutHeader>
         <StackLayout Padding="10" BackgroundColor="Gray">
-            <Label Text="{Binding Source={x:Static auth:UserSession.Instance}, Path=Username}" />
             <Label Text="{Binding Session.Username}" />
             <Label Text="Menu" FontSize="24" FontAttributes="Bold" />
             <Button Text="Odhlásit se"
                     Command="{Binding LogoutCommand}" />
-            
+            <Button Text="Profil" Command="{Binding ProfileCommand}" />
         </StackLayout>
     </Shell.FlyoutHeader>
 
-    
-    
-    <ShellContent
-        Route="LoginPage"
-        ContentTemplate="{DataTemplate pages:LoginPage}" />
-    
-    <ShellContent
-    Route="RegistrationPage"
-    ContentTemplate="{DataTemplate pages:RegistrationPage}" />
 
-    <ShellContent 
-            Title="Home"
-            Route="CalendarPage" 
-            ContentTemplate="{DataTemplate pages:CalendarPage}" />
 
-        <ShellContent 
-            Title="Detail Page"
-            Route="MeetingDetailPage" 
-            ContentTemplate="{DataTemplate pages:MeetingDetailPage}" />
+    
+    <!-- Ostatní stránky NEzobrazuj ve Flyoutu -->
 
+    <ShellContent Route="LoginPage" ContentTemplate="{DataTemplate pages:LoginPage}" Shell.FlyoutItemIsVisible="False"/>
+    <ShellContent Route="RegistrationPage" ContentTemplate="{DataTemplate pages:RegistrationPage}" Shell.FlyoutItemIsVisible="False"/>
+    <ShellContent Route="CalendarPage" ContentTemplate="{DataTemplate pages:CalendarPage}" Shell.FlyoutItemIsVisible="False"/>
+    <ShellContent Route="MeetingDetailPage" ContentTemplate="{DataTemplate pages:MeetingDetailPage}" Shell.FlyoutItemIsVisible="False"/>
         
     
 </Shell>

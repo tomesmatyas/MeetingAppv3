@@ -17,8 +17,15 @@ public partial class UserSession : ObservableObject
     [ObservableProperty] private bool isAuthenticated;
     [ObservableProperty] private string? username;
     [ObservableProperty] private int? userId;
+    [ObservableProperty] private string? firstName;
+    [ObservableProperty] private string? lastName;
 
+    public string FullName =>
+    string.IsNullOrWhiteSpace(FirstName) && string.IsNullOrWhiteSpace(LastName)
+        ? Username ?? ""
+        : $"{FirstName} {LastName}".Trim();
     private UserSession() { }
+
 
     public async Task LoadAsync()
     {
@@ -39,6 +46,12 @@ public partial class UserSession : ObservableObject
         UserId = int.TryParse(jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value, out int id) ? id : null;
         IsAdmin = string.Equals(jwt.Claims.FirstOrDefault(c => c.Type == "role" || c.Type == ClaimTypes.Role)?.Value, "Admin", StringComparison.OrdinalIgnoreCase);
         IsAuthenticated = true;
+
+        FirstName = jwt.Claims.FirstOrDefault(c => c.Type == "firstName")?.Value;
+        LastName = jwt.Claims.FirstOrDefault(c => c.Type == "lastName")?.Value;
+        
+        
+        
 
         Debug.WriteLine($"[SESSION] Username: {Username}, IsAdmin: {IsAdmin}");
     }
