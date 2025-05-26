@@ -18,41 +18,52 @@ public static class MeetingMapper
             EndDate = meeting.EndDate,
             ColorHex = meeting.ColorHex,
             IsRegular = meeting.IsRegular,
-            RecurrenceId = meeting.RecurrenceId,
-            Recurrence = meeting.Recurrence == null ? null : new MeetingRecurrenceDto
-            {
-                Id = meeting.Recurrence.Id,
-                Pattern = meeting.Recurrence.Pattern,
-                Interval = meeting.Recurrence.Interval
-            },
+            RecurrenceId = meeting.RecurrenceId ?? 0,
+            RecurrencePattern = meeting.Recurrence?.Pattern,
+            Interval = meeting.Recurrence?.Interval ?? 1,
             CreatedByUserId = meeting.CreatedByUserId,
-            CreatedByUser = meeting.CreatedByUser == null ? null : new UserDto
-            {
-                Id = meeting.CreatedByUser.Id,
-                Username = meeting.CreatedByUser.Username,
-                Email = meeting.CreatedByUser.Email,
-                FirstName = meeting.CreatedByUser.FirstName,
-                LastName = meeting.CreatedByUser.LastName,
-                Role = meeting.CreatedByUser.Role
-            },
+
             Participants = meeting.Participants
-                .Where(p => p.User != null)
+                .Where(p => p.UserId != 0)
                 .Select(p => new MeetingParticipantDto
                 {
-            MeetingId = p.MeetingId,
-            UserId = p.UserId,
-            User = new UserDto
-            {
-                Id = p.User!.Id,
-                Username = p.User.Username,
-                Email = p.User.Email,
-                FirstName = p.User.FirstName,
-                LastName = p.User.LastName,
-                Role = p.User.Role
-            }
-    }).ToList()
+                    MeetingId = p.MeetingId,
+                    UserId = p.UserId,
+                    User = p.User != null ? new UserDto
+                    {
+                        Id = p.User.Id,
+                        Username = p.User.Username,
+                        Email = p.User.Email,
+                        FirstName = p.User.FirstName,
+                        LastName = p.User.LastName,
+                        Role = p.User.Role
+                    } : null
+                }).ToList()
         };
     }
+
+    public static UpdateMeetingDto ToUpdateDto(this MeetingDto meeting)
+    {
+        return new UpdateMeetingDto
+        {
+            Id = meeting.Id,
+            Title = meeting.Title,
+            Date = meeting.Date,
+            StartTime = meeting.StartTime,
+            EndTime = meeting.EndTime,
+            ColorHex = meeting.ColorHex,
+            IsRegular = meeting.IsRegular,
+            RecurrenceId = meeting.RecurrenceId,
+            Interval = meeting.Interval,
+            EndDate = meeting.EndDate,
+            CreatedByUserId = meeting.CreatedByUserId,
+            Participants = meeting.Participants
+                .Where(p => p != null)
+                .Select(p => p.UserId)
+                .ToList()
+        };
+    }
+
 
     public static Meeting MapToModel(MeetingDto dto)
     {
@@ -67,40 +78,30 @@ public static class MeetingMapper
             ColorHex = dto.ColorHex,
             IsRegular = dto.IsRegular,
             RecurrenceId = dto.RecurrenceId,
-            Recurrence = dto.Recurrence == null ? null : new MeetingRecurrence
+            Recurrence = !string.IsNullOrEmpty(dto.RecurrencePattern) ? new MeetingRecurrence
             {
-                Id = dto.Recurrence.Id,
-                Pattern = dto.Recurrence.Pattern,
-                Interval = dto.Recurrence.Interval
-            },
+                Id = dto.RecurrenceId ?? 0,
+                Pattern = dto.RecurrencePattern,
+                Interval = dto.Interval
+            } : null,
             CreatedByUserId = dto.CreatedByUserId,
-            CreatedByUser = dto.CreatedByUser == null ? null : new User
-            {
-                Id = dto.CreatedByUser.Id,
-                Username = dto.CreatedByUser.Username,
-                Email = dto.CreatedByUser.Email,
-                FirstName = dto.CreatedByUser.FirstName,
-                LastName = dto.CreatedByUser.LastName,
-                Role = dto.CreatedByUser.Role
-            },
+
             Participants = dto.Participants
-            .Where(p => p?.User != null)
-            .Select(p => new MeetingParticipant
-            {
-                UserId = p.UserId,
-                User = new User
-                {
-                    Id = p.User!.Id,
-                    Username = p.User.Username,
-                    Email = p.User.Email,
-                    FirstName = p.User.FirstName,
-                    LastName = p.User.LastName,
-                    Role = p.User.Role
-                }
-             }).ToList()
+                    .Select(p => new MeetingParticipant
+                    {
+                        UserId = p.UserId,
+                        User = p.User != null ? new User
+                        {
+                            Id = p.User.Id,
+                            Username = p.User.Username,
+                            Email = p.User.Email,
+                            FirstName = p.User.FirstName,
+                            LastName = p.User.LastName,
+                            Role = p.User.Role
+                        } : null
+                    }).ToList()
+
         };
-
-
     }
 
     public static MeetingDto? SanitizeDto(MeetingDto? meeting)

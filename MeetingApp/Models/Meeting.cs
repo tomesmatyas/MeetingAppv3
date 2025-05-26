@@ -4,7 +4,16 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace MeetingApp.Models
-{ 
+{
+    public class ColorOption
+    {
+        public string Name { get; set; }       // Název barvy (zobrazí uživateli)
+        public string Hex { get; set; }        // HEX kód (uloží do modelu)
+
+        // Pro lepší uživatelský zážitek:
+        public Color MauiColor => Color.FromArgb(Hex);
+        public override string ToString() => Name;
+    }   
     public class Meeting
     {
         public int Id { get; set; }

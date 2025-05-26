@@ -4,6 +4,7 @@
              x:Class="MeetingApp.Pages.CalendarPage"
              xmlns:auth="clr-namespace:MeetingApp.Services.Auth"
              x:DataType="vm:CalendarViewModel">
+   
 
     <ScrollView>
         <Grid Padding="10">
@@ -28,12 +29,9 @@
             <!-- Kalendářní grid -->
 
             <Grid x:Name="CalendarGrid" Grid.Row="1">
-                <!-- 48 půlhodinových slotů -->
+            
                 <Grid.RowDefinitions>
-                    <!-- 8:00 - 8:30 až 23:30 -->
-                    <!-- Start index: 1 (Row 0 je hlavička) -->
-                    <!-- Celkem 48 řádků -->
-                    <!-- Vygenerováno automaticky při inicializaci (kód C#) -->
+               
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
@@ -91,34 +89,66 @@
                 <!-- Hlavička dnů -->
                 <Label Grid.Row="0" Grid.Column="0" />
                 <Label Grid.Row="0" Grid.Column="1" Text="{Binding Days[0].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" FontAttributes="Bold" />
-                <Label Grid.Row="0" Grid.Column="2" Text="{Binding Days[1].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" />
-                <Label Grid.Row="0" Grid.Column="3" Text="{Binding Days[2].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" />
-                <Label Grid.Row="0" Grid.Column="4" Text="{Binding Days[3].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" />
-                <Label Grid.Row="0" Grid.Column="5" Text="{Binding Days[4].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" />
-                <Label Grid.Row="0" Grid.Column="6" Text="{Binding Days[5].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" />
-                <Label Grid.Row="0" Grid.Column="7" Text="{Binding Days[6].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" />
+                <Label Grid.Row="0" Grid.Column="2" Text="{Binding Days[1].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" FontAttributes="Bold"/>
+                <Label Grid.Row="0" Grid.Column="3" Text="{Binding Days[2].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" FontAttributes="Bold"/>
+                <Label Grid.Row="0" Grid.Column="4" Text="{Binding Days[3].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" FontAttributes="Bold"/>
+                <Label Grid.Row="0" Grid.Column="5" Text="{Binding Days[4].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" FontAttributes="Bold"/>
+                <Label Grid.Row="0" Grid.Column="6" Text="{Binding Days[5].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" FontAttributes="Bold"/>
+                <Label Grid.Row="0" Grid.Column="7" Text="{Binding Days[6].Date, StringFormat='{}{0:ddd dd}'}" HorizontalTextAlignment="Center" FontAttributes="Bold"/>
 
-                <!-- Časová osa -->
-                <!-- Taky generuj automaticky (např. z ViewModelu nebo kódu behind) -->
-                <Label Grid.Row="1" Grid.Column="0" Text="8:00" />
-                <Label Grid.Row="3" Grid.Column="0" Text="9:00" BackgroundColor="Aqua" Grid.ColumnSpan="8"/>
-                <Label Grid.Row="5" Grid.Column="0" Text="10:00" />
-                <Label Grid.Row="7" Grid.Column="0" Text="11:00" />
-                <Label Grid.Row="9" Grid.Column="0" Text="12:00" BackgroundColor="Aqua" Grid.ColumnSpan="8"/>
-                <Label Grid.Row="11" Grid.Column="0" Text="13:00" />
-                <Label Grid.Row="13" Grid.Column="0" Text="14:00" />
-                <Label Grid.Row="15" Grid.Column="0" Text="15:00" />
-                <Label Grid.Row="17" Grid.Column="0" Text="16:00" />
-                <Label Grid.Row="19" Grid.Column="0" Text="17:00" BackgroundColor="Aqua" Grid.ColumnSpan="8"/>
-                <Label Grid.Row="21" Grid.Column="0" Text="18:00" />
-                <Label Grid.Row="23" Grid.Column="0" Text="19:00" />
-                <Label Grid.Row="25" Grid.Column="0" Text="20:00" />
-                <Label Grid.Row="27" Grid.Column="0" Text="21:00" />
-                <Label Grid.Row="29" Grid.Column="0" Text="22:00" BackgroundColor="Aqua" Grid.ColumnSpan="8"/>
+        
+                <Label Grid.Row="0" Grid.Column="0" Text="8:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+                <Label Grid.Row="2" Grid.Column="0" Text="9:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+                <Label Grid.Row="4" Grid.Column="0" Text="10:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+                <Label Grid.Row="6" Grid.Column="0" Text="11:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+                <Label Grid.Row="8" Grid.Column="0" Text="12:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+                <Label Grid.Row="10" Grid.Column="0" Text="13:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+                <Label Grid.Row="12" Grid.Column="0" Text="14:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+                <Label Grid.Row="14" Grid.Column="0" Text="15:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+                <Label Grid.Row="16" Grid.Column="0" Text="16:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+                <Label Grid.Row="18" Grid.Column="0" Text="17:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+                <Label Grid.Row="20" Grid.Column="0" Text="18:00" Grid.RowSpan="2" VerticalOptions="Center" />
+                <Label Grid.Row="22" Grid.Column="0" Text="19:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+                <Label Grid.Row="24" Grid.Column="0" Text="20:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+                <Label Grid.Row="26" Grid.Column="0" Text="21:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+                <Label Grid.Row="28" Grid.Column="0" Text="22:00" Grid.RowSpan="2" VerticalOptions="Center"/>
+
+                <BoxView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start" />
+                <BoxView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start" />
+                <BoxView Grid.Row="18" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="20" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="22" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="24" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="26" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="28" Grid.Column="0" Grid.ColumnSpan="8" HeightRequest="1" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                
+                <BoxView Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start" />
+                <BoxView Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5"  BackgroundColor="LightGray" VerticalOptions="Start" />
+                <BoxView Grid.Row="15" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="17" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="19" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="21" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="23" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="25" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start" />
+                <BoxView Grid.Row="27" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start"/>
+                <BoxView Grid.Row="29" Grid.Column="1" Grid.ColumnSpan="7" HeightRequest="1.5" BackgroundColor="LightGray" VerticalOptions="Start"/>
+
+
                 <Grid x:Name="DayGrid0" Grid.Row="1" Grid.RowSpan="48" Grid.Column="1" >
+                    
                     <Grid.RowDefinitions>
-                        <!-- 8:00 - 8:30 až 23:30 -->
-                        <!-- Vygenerováno automaticky při inicializaci (kód C#) -->
+                  
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -155,8 +185,7 @@
                 </Grid>
                 <Grid x:Name="DayGrid1" Grid.Row="1" Grid.RowSpan="48" Grid.Column="2" >
                     <Grid.RowDefinitions>
-                        <!-- 8:00 - 8:30 až 23:30 -->
-                        <!-- Vygenerováno automaticky při inicializaci (kód C#) -->
+                  
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -193,8 +222,7 @@
                 </Grid>
                 <Grid x:Name="DayGrid2" Grid.Row="1" Grid.RowSpan="48" Grid.Column="3" >
                     <Grid.RowDefinitions>
-                        <!-- 8:00 - 8:30 až 23:30 -->
-                        <!-- Vygenerováno automaticky při inicializaci (kód C#) -->
+                  
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -232,8 +260,6 @@
 
                 <Grid x:Name="DayGrid3" Grid.Row="1" Grid.RowSpan="48" Grid.Column="4" >
                     <Grid.RowDefinitions>
-                        <!-- 8:00 - 8:30 až 23:30 -->
-                        <!-- Vygenerováno automaticky při inicializaci (kód C#) -->
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -270,8 +296,7 @@
                 </Grid>
                 <Grid x:Name="DayGrid4" Grid.Row="1" Grid.RowSpan="48" Grid.Column="5" >
                     <Grid.RowDefinitions>
-                        <!-- 8:00 - 8:30 až 23:30 -->
-                        <!-- Vygenerováno automaticky při inicializaci (kód C#) -->
+                       
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -308,8 +333,7 @@
                 </Grid>
                 <Grid x:Name="DayGrid5" Grid.Row="1" Grid.RowSpan="48" Grid.Column="6" >
                     <Grid.RowDefinitions>
-                        <!-- 8:00 - 8:30 až 23:30 -->
-                        <!-- Vygenerováno automaticky při inicializaci (kód C#) -->
+                       
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -344,10 +368,11 @@
                     </Grid.RowDefinitions>
 
                 </Grid>
-                <Grid x:Name="DayGrid6" Grid.Row="1" Grid.RowSpan="48" Grid.Column="7" >
+                
+                <Grid x:Name="DayGrid6" Grid.Row="1" Grid.RowSpan="48" Grid.Column="7"  >
+                    
                     <Grid.RowDefinitions>
-                        <!-- 8:00 - 8:30 až 23:30 -->
-                        <!-- Vygenerováno automaticky při inicializaci (kód C#) -->
+                       
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -381,8 +406,9 @@
                         
 
                     </Grid.RowDefinitions>
-
+                    
                 </Grid>
+                
             </Grid>
             
 

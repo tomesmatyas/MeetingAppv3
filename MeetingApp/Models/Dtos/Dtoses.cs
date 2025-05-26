@@ -2,6 +2,38 @@
 using System.Collections.Generic;
 
 namespace MeetingApp.Models.Dtos;
+public class UpdateMeetingDto
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public DateTime Date { get; set; }
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan EndTime { get; set; }
+    public string? ColorHex { get; set; }
+    public bool IsRegular { get; set; }
+    public int? RecurrenceId { get; set; }
+    public int? Interval { get; set; }
+    public DateTime? EndDate { get; set; }
+    public int CreatedByUserId { get; set; }
+
+    // ✅ správně pro API
+    public List<int> Participants { get; set; } = new();
+}
+public class CreateMeetingDto
+{
+    public string Title { get; set; } = string.Empty;
+    public DateTime Date { get; set; }
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan EndTime { get; set; }
+    public string? ColorHex { get; set; }
+    public bool IsRegular { get; set; }
+    public int? RecurrenceId { get; set; }
+    public int? Interval { get; set; }
+    public DateTime? EndDate { get; set; }
+    public int CreatedByUserId { get; set; }
+    public List<int> Participants { get; set; } = new();
+}
+
 
 public class UserDto
 {
@@ -36,6 +68,8 @@ public class UpdateUserDto
     public string Username { get; set; } = string.Empty;
 }
 
+
+
 public class MeetingDto
 {
     public int Id { get; set; }
@@ -44,18 +78,20 @@ public class MeetingDto
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
     public DateTime? EndDate { get; set; }
-    public string? ColorHex { get; set; }
+    public string ColorHex { get; set; } = "#0078D7";
     public bool IsRegular { get; set; }
-    public int Interval { get; set; } = 1; 
-
     public int? RecurrenceId { get; set; }
-    public MeetingRecurrenceDto? Recurrence { get; set; }
-
+    public string? RecurrencePattern { get; set; }
+    public int Interval { get; set; } = 1;
     public int CreatedByUserId { get; set; }
-    public UserDto? CreatedByUser { get; set; }
 
+    // ⛳ API expects participant IDs only
     public List<MeetingParticipantDto> Participants { get; set; } = new();
+    public List<UserDto> ParticipantUsers { get; set; } = new();
+  
 }
+
+
 
 public class MeetingRecurrenceDto
 {

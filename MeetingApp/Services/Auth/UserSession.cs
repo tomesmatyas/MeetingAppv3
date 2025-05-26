@@ -12,6 +12,7 @@ public partial class UserSession : ObservableObject
     public static UserSession Instance => _instance.Value;
 
     public static bool IsAdminCheck => Instance.IsAdmin;
+    public static bool IsNotAdminCheck => !Instance.IsAdmin;
 
     [ObservableProperty] private bool isAdmin;
     [ObservableProperty] private bool isAuthenticated;

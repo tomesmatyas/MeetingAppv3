@@ -6,54 +6,95 @@
              xmlns:models="clr-namespace:MeetingApp.Models"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:dtos="clr-namespace:MeetingApp.Models.Dtos"
+             xmlns:auth="clr-namespace:MeetingApp.Services.Auth"
              Title="Detail Schůzky">
 
-    <ContentPage.ToolbarItems>
-        
-        <ToolbarItem Text="Uložit" Command="{Binding SaveChangesButtonCommand}" />
-        <ToolbarItem Text="Smazat" Command="{Binding DeleteMeetingCommand}" Priority="1" Order="Secondary" />
-    </ContentPage.ToolbarItems>
+    <ContentPage.ToolbarItems></ContentPage.ToolbarItems>
     <Grid>
         <ScrollView x:Name="MainScrollView">
         <VerticalStackLayout Padding="20" Spacing="15">
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                    <Label Text="Název schůzky" Grid.Column="0"/>
-                    <ActivityIndicator  Grid.Column="1" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+                <Grid ColumnDefinitions="*" >
+                    <Entry Text="{Binding Title}" Grid.Column="0" Placeholder="Zadejte název" IsVisible="{x:Static auth:UserSession.IsAdminCheck}" />
+                    <Label HorizontalOptions="Center" FontSize="20" Text="{Binding Title}" IsVisible="{x:Static auth:UserSession.IsNotAdminCheck}" Grid.Column="0" />     
                 </Grid>
-            
-            <Entry Text="{Binding Title}" Placeholder="Zadejte název"/>
 
-            <Label Text="Datum a čas"/>
-            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
-                <DatePicker Date="{Binding Date}" Grid.Column="0"/>
+
+                <BoxView HeightRequest="1"
+                    BackgroundColor="Gray"
+                    HorizontalOptions="Fill"
+                    Margin="0,10" />        
+
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" IsVisible="{x:Static auth:UserSession.IsAdminCheck}">
+                    <DatePicker Date="{Binding Date, StringFormat='Datum: {0:dd.MM.yyyy}'}" Grid.Column="0"/>
                 <TimePicker Time="{Binding StartTime}" Grid.Column="1"/>
                 <TimePicker Time="{Binding EndTime}" Grid.Column="2"/>
             </Grid>
+                <Grid ColumnDefinitions="*,auto,*" ColumnSpacing="10" IsVisible="{x:Static auth:UserSession.IsNotAdminCheck}">
+                    <Label Text="{Binding Date, StringFormat='Datum: {0:dd.MM.yyyy}'}" HorizontalOptions="Center" Grid.Column="0"/>
+                    <Label Text="{Binding StartTime, StringFormat='od {0:hh\\:mm}'}" HorizontalOptions="Center" Grid.Column="1"/>
+                    <Label Text="{Binding StartTime, StringFormat='do {0:hh\\:mm}'}"  Grid.Column="2"/>
+                </Grid>
+                <Grid ColumnDefinitions="auto,auto" IsVisible="{x:Static auth:UserSession.IsAdminCheck}">
+                    <Label Text="Barva schůzky (hex):" VerticalOptions="Center" Grid.Column="0" TextColor="{Binding SelectedColor.Hex}"/>
+                    <Picker Grid.Column="1" ItemsSource="{Binding AvailableColors}" SelectedItem="{Binding SelectedColor, Mode=TwoWay}"/>
+                </Grid>
 
-            <Label Text="Opakování"/>
-            <Grid ColumnDefinitions="*,*">
-                <Picker Grid.Column="0"
-            ItemsSource="{Binding RecurrencePatterns}"
-            SelectedItem="{Binding Pattern}" />
-                <DatePicker Grid.Column="1"
-                Date="{Binding EndDate}"
-                MinimumDate="{x:Static sys:DateTime.Today}">
-                    <DatePicker.Triggers>
-                        <DataTrigger TargetType="DatePicker" Binding="{Binding Pattern}" Value="None">
+
+                <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="70" IsVisible="{x:Static auth:UserSession.IsAdminCheck}">
+                    <Label Text="Opakování schůzky" IsVisible="{x:Static auth:UserSession.IsAdminCheck}" Grid.Column="0"/>
+                    <Switch  HorizontalOptions="Center" IsToggled="{Binding IsRegular}" IsVisible="{x:Static auth:UserSession.IsAdminCheck}" Grid.Column="0" />
+
+                    <Picker Title="Vyberte opakování" Grid.Column="1" ItemsSource="{Binding RecurrencePatterns}"  SelectedItem="{Binding Pattern}" IsVisible="{x:Static auth:UserSession.IsAdminCheck}">   
+                    <Picker.Triggers>
+                        <DataTrigger TargetType="Picker" Binding="{Binding IsRegular}" Value="False">
                             <Setter Property="IsVisible" Value="False" />
                         </DataTrigger>
-                    </DatePicker.Triggers>
-                </DatePicker>
-            </Grid>
+                    </Picker.Triggers>
+                </Picker>
+                
+                    
+               
+                <!-- 🆕 Interval -->
+                    <StackLayout IsVisible="{x:Static auth:UserSession.IsAdminCheck}" Grid.Column="2" HorizontalOptions="Center" >
+                    <StackLayout.Triggers>
+                        <DataTrigger TargetType="StackLayout" Binding="{Binding IsRegular}" Value="False">
+                            <Setter Property="IsVisible" Value="False" />
+                        </DataTrigger>
+                    </StackLayout.Triggers>
 
-            <VerticalStackLayout x:Name="AddUserSectionScroll">
+                    <Label Text="Opakovat každých:" Padding="3"/>
+                        <Grid ColumnDefinitions="*,*">
+                            <Stepper Minimum="1" Maximum="12" Increment="1" Value="{Binding Interval}" Grid.Column="0"/>
+                            <Label Text="{Binding Interval}" FontAttributes="Bold" Grid.Column="1" HorizontalTextAlignment="Center"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                    </StackLayout>
+                    <StackLayout Grid.Column="4">
+                        <Label Text="Opakovat každých:" Padding="3"  />
+                        <DatePicker VerticalOptions="End" Date="{Binding EndDate}" IsVisible="{x:Static auth:UserSession.IsAdminCheck}"/>
+
+                        <StackLayout.Triggers>
+                            <DataTrigger TargetType="StackLayout" Binding="{Binding IsRegular}" Value="False">
+                                <Setter Property="IsVisible" Value="False" />
+                            </DataTrigger>
+                        </StackLayout.Triggers>
+                    </StackLayout>
+                    
+                </Grid>
+                <BoxView HeightRequest="1"
+        BackgroundColor="Gray"
+        HorizontalOptions="Fill"
+        Margin="0,10" />
+
+                <VerticalStackLayout x:Name="AddUserSectionScroll" IsVisible="{x:Static auth:UserSession.IsAdminCheck}">
                     <SearchBar  x:Name="SearchBarControl" 
                                 Text="{Binding SearchText}"
                        Placeholder="Hledat účastníka..."
                        Focused="OnSearchBarFocused"
                            />
 
-                <CollectionView ItemsSource="{Binding FilteredUsers}" HeightRequest="200">
+                <CollectionView ItemsSource="{Binding FilteredUsers}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="dtos:UserDto">
                             <Label Text="{Binding FullName}">
@@ -78,7 +119,7 @@
                             <Button Text="🗑"
                                     Grid.Column="2"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MeetingDetailViewModel}}, Path=RemoveParticipantCommand}"
-                                    CommandParameter="{Binding .}" />
+                                    CommandParameter="{Binding .}"  IsVisible="{x:Static auth:UserSession.IsAdminCheck}"/>
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

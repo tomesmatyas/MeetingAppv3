@@ -1,4 +1,4 @@
-// File: CalendarPage.xaml.cs (pøidáno resetování Days pøed generací nových dat)
+ï»¿// File: CalendarPage.xaml.cs (pï¿½idï¿½no resetovï¿½nï¿½ Days pï¿½ed generacï¿½ novï¿½ch dat)
 using CommunityToolkit.Mvvm.Messaging;
 using MeetingApp.Models;
 using MeetingApp.Models.ViewModels;
@@ -27,7 +27,7 @@ public partial class CalendarPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-            await _viewModel.LoadMeetings();
+        await _viewModel.LoadMeetings();
     }
 
     private void RefreshCalendar()
@@ -44,6 +44,39 @@ public partial class CalendarPage : ContentPage
             for (int c = 0; c < maxCols; c++)
                 dayGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
+            int maxRows = dayGrid.RowDefinitions.Count > 0 ? dayGrid.RowDefinitions.Count : 29;
+            bool isToday = _viewModel.Days[i].Date.Date == DateTime.Today.Date;
+
+            for (int row = 0; row < maxRows; row++)
+            {
+                BoxView bg;
+
+                if (isToday)
+                {
+                    bg = new BoxView
+                    {
+                        Color = Colors.HotPink, // nebo zvol svou rÅ¯Å¾ovou #FF69B4
+                        Opacity = 0.1
+                    };
+                }
+                else if (i == 1 || i == 3 || i == 5) // ÃšterÃ½, PÃ¡tek, Sobota
+                {
+                    bg = new BoxView
+                    {
+                        Color = Colors.LightBlue,
+                        Opacity = 0.5
+                    };
+                }
+                else
+                {
+                    continue; // pro ostatnÃ­ dny nepÅ™idÃ¡vej pozadÃ­
+                }
+
+                Grid.SetRow(bg, row);
+                Grid.SetColumn(bg, 0);
+                Grid.SetColumnSpan(bg, dayGrid.ColumnDefinitions.Count);
+                dayGrid.Children.Add(bg);
+            }
             AddMeetingsToGrid(dayGrid, _viewModel.Days[i]);
         }
     }

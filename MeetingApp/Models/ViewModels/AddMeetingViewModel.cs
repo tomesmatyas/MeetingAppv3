@@ -1,6 +1,8 @@
 // File: AddMeetingViewModel.cs
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MeetingApp.Models;
 using MeetingApp.Models.Dtos;
 using MeetingApp.Services;
 using MeetingApp.Services.Auth;
@@ -17,21 +19,46 @@ public partial class AddMeetingViewModel : ObservableObject
     private readonly UserSession _session;
 
     public ObservableCollection<string> RecurrenceOptions { get; } =
-        new() { "Weekly", "Monthly" };
+    new() { "Týden", "Mìsíc" };
 
     [ObservableProperty] private string title = string.Empty;
     [ObservableProperty] private DateTime date = DateTime.Today;
-    [ObservableProperty] private TimeSpan startTime = new(10, 0, 0);
-    [ObservableProperty] private TimeSpan endTime = new(11, 0, 0);
-    [ObservableProperty] private string colorHex = "#0078D7";
+    private static TimeSpan RoundUpToHalfHour(DateTime dt) =>
+    TimeSpan.FromMinutes(Math.Ceiling(dt.TimeOfDay.TotalMinutes / 30) * 30);
+
+    [ObservableProperty]
+    private TimeSpan startTime = RoundUpToHalfHour(DateTime.Now);
+
+    [ObservableProperty]
+    private TimeSpan endTime = RoundUpToHalfHour(DateTime.Now).Add(TimeSpan.FromHours(1));
+    
     [ObservableProperty] private bool isRegular;
     [ObservableProperty] private string? selectedRecurrence;
     [ObservableProperty] private DateTime? endDate;
+
 
     [ObservableProperty] private ObservableCollection<UserDto> availableUsers = new();
     [ObservableProperty] private ObservableCollection<UserDto> selectedUsers = new();
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private ObservableCollection<UserDto> filteredUsers = new();
+    [ObservableProperty] private int interval = 1;
+
+    public List<ColorOption> AvailableColors { get; } = new()
+{
+    new ColorOption { Name = "Modrá", Hex = "#0078D7" },
+    new ColorOption { Name = "Èervená", Hex = "#D32F2F" },
+    new ColorOption { Name = "Zelená", Hex = "#388E3C" },
+    new ColorOption { Name = "Žlutá", Hex = "#FBC02D" },
+    new ColorOption { Name = "Fialová", Hex = "#7B1FA2" },
+    new ColorOption { Name = "Tyrkysová", Hex = "#0288D1" },
+    new ColorOption { Name = "Oranžová", Hex = "#FFA000" },
+};
+    [ObservableProperty]
+    private ColorOption selectedColor;
+
+    // Když potøebuješ HEX do modelu pøi ukládání:
+    public string ColorHex => SelectedColor?.Hex;
+
 
     public AddMeetingViewModel(MeetingService service, UserSession session)
     {
@@ -39,6 +66,7 @@ public partial class AddMeetingViewModel : ObservableObject
         _session = session;
         LoadUsers();
     }
+    public bool IsAdmin => _session.IsAdmin;
 
     private async void LoadUsers()
     {
@@ -98,19 +126,25 @@ public partial class AddMeetingViewModel : ObservableObject
             return;
         }
 
+        var isRecurring = SelectedRecurrence is "Týden" or "Mìsíc";
+
         var meeting = new MeetingDto
         {
             Title = Title,
             Date = Date,
             StartTime = StartTime,
             EndTime = EndTime,
-            ColorHex = ColorHex,
+            ColorHex = SelectedColor.Hex,
             IsRegular = IsRegular,
             EndDate = IsRegular ? EndDate : null,
             CreatedByUserId = _session.UserId ?? 0,
-            Recurrence = IsRegular && SelectedRecurrence != null
-                ? new MeetingRecurrenceDto { Pattern = SelectedRecurrence, Interval = 1 }
-                : null,
+            RecurrenceId = SelectedRecurrence switch
+            {
+                "Týden" => 2,
+                "Mìsíc" => 3,
+                _ => 1
+            },
+            Interval = Interval,
             Participants = SelectedUsers.Select(u => new MeetingParticipantDto
             {
                 UserId = u.Id,
@@ -119,8 +153,7 @@ public partial class AddMeetingViewModel : ObservableObject
         };
 
         try
-        {   
-
+        {
             Debug.WriteLine(meeting.Participants.Count);
             await _meetingService.CreateMeetingAsync(meeting);
             await MeetingNotificationHelper.ScheduleNotificationAsync(meeting);

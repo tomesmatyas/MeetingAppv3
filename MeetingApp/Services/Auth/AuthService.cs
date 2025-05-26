@@ -4,6 +4,8 @@ using MeetingApp.Models.Dtos;
 using MeetingApp.Services.Auth;
 using System.Diagnostics;
 using System.Net.Http.Headers;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace MeetingApp.Services.Auth;
 public interface IAuthService
@@ -103,7 +105,16 @@ public class AuthService : IAuthService
 
         return response.IsSuccessStatusCode;
     }
+    public async Task<string?> GetUserRoleAsync()
+    {
+        var token = await SecureStorage.GetAsync("access_token");
+        if (string.IsNullOrWhiteSpace(token)) return null;
 
+        var handler = new JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(token);
+
+        return jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+    }
 
     public bool IsLoggedIn() =>
         !string.IsNullOrEmpty(Preferences.Get("access_token", string.Empty));

@@ -17,8 +17,8 @@
             <Label Text="{Binding Session.Username}" />
             <Label Text="Menu" FontSize="24" FontAttributes="Bold" />
             <Button Text="Odhlásit se"
-                    Command="{Binding LogoutCommand}" />
-            <Button Text="Profil" Command="{Binding ProfileCommand}" />
+                    Command="{Binding LogoutCommand}" Margin="5"/>
+            <Button Text="Profil" Command="{Binding ProfileCommand}" Margin="5"/>
         </StackLayout>
     </Shell.FlyoutHeader>
 

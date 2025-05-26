@@ -33,7 +33,7 @@ public partial class CalendarViewModel : ObservableObject
     {
         try
         {
-            var list = await _meetingService.GetMeetingsAsync();
+            var list = await _meetingService.GetMyMeetingsAsync();
             Meetings = new ObservableCollection<MeetingDto>(list);
 
             Debug.WriteLine("Načtené schůzky:");
@@ -49,7 +49,7 @@ public partial class CalendarViewModel : ObservableObject
     }
 
     private void UpdateCalendar()
-        {
+    {
         var newDays = new ObservableCollection<DayModel>();
         foreach (var day in Days)
             day.Meetings.Clear();
@@ -85,7 +85,6 @@ public partial class CalendarViewModel : ObservableObject
                 });
             }
 
-            // Překryvy - korektní detekce na základě všech kolizí
             var assigned = new HashSet<MeetingDisplay>();
 
             foreach (var meeting in meetingDisplays)
@@ -115,34 +114,31 @@ public partial class CalendarViewModel : ObservableObject
         }
 
         Days = newDays;
-        WeekRange = $"{CurrentWeekStart:dd.} - {CurrentWeekStart.AddDays(6):dd. MM. yyyy}";
+        WeekRange = $"{CurrentWeekStart:dd. MM.} - {CurrentWeekStart.AddDays(6):dd. MM. yyyy}";
         WeakReferenceMessenger.Default.Send(new RefreshCalendarMessage());
     }
-
 
     private List<MeetingDto> GenerateRecurringMeetingsForWeek(DateTime weekStart)
     {
         var result = new List<MeetingDto>();
         var weekEnd = weekStart.AddDays(7);
 
-        // Vytvoříme množinu unikátních klíčů
         var existingKeys = new HashSet<string>(
             Meetings.Select(m => $"{m.Title}|{m.Date.Date}|{m.StartTime}-{m.EndTime}")
         );
 
-        foreach (var m in Meetings.Where(m => m.IsRegular && m.Recurrence != null))
+        foreach (var m in Meetings.Where(m => m.IsRegular && !string.IsNullOrEmpty(m.RecurrencePattern)))
         {
-            var recurrence = m.Recurrence!;
+            string pattern = m.RecurrencePattern ?? "Ne";
             var originalDate = m.Date;
             var endDate = m.EndDate ?? weekEnd;
-            var interval = recurrence.Interval;
-            var pattern = recurrence.Pattern;
+            int interval = m.Interval;
 
             DateTime dateIterator = pattern switch
             {
-                "Weekly" => originalDate.StartOfWeek(DayOfWeek.Monday),
-                "Monthly" => new DateTime(originalDate.Year, originalDate.Month, 1),
-                _ => originalDate
+                "Týden" => originalDate.StartOfWeek(DayOfWeek.Monday),
+                "Měsíc" => new DateTime(originalDate.Year, originalDate.Month, 1, 0, 0, 0),
+                _ => DateTime.MinValue
             };
 
             while (dateIterator <= weekEnd)
@@ -150,8 +146,8 @@ public partial class CalendarViewModel : ObservableObject
                 if (dateIterator >= weekStart && dateIterator <= endDate)
                 {
                     bool isValid =
-                        (pattern == "Weekly" && (dateIterator - originalDate).Days % (7 * interval) == 0) ||
-                        (pattern == "Monthly" && originalDate.Day == dateIterator.Day &&
+                        (pattern == "Týden" && (dateIterator - originalDate).Days % (7 * interval) == 0) ||
+                        (pattern == "Měsíc" && originalDate.Day == dateIterator.Day &&
                          ((dateIterator.Year - originalDate.Year) * 12 + dateIterator.Month - originalDate.Month) % interval == 0);
 
                     if (isValid)
@@ -160,11 +156,10 @@ public partial class CalendarViewModel : ObservableObject
 
                         if (!existingKeys.Contains(key))
                         {
-                            existingKeys.Add(key); // Zaznamenáme jako přidané
-
+                            existingKeys.Add(key);
                             result.Add(new MeetingDto
                             {
-                                Id = -1, // -1 znamená "virtuální opakování"
+                                Id = m.Id,
                                 Title = m.Title,
                                 Date = dateIterator,
                                 StartTime = m.StartTime,
@@ -172,10 +167,11 @@ public partial class CalendarViewModel : ObservableObject
                                 ColorHex = m.ColorHex,
                                 IsRegular = m.IsRegular,
                                 RecurrenceId = m.RecurrenceId,
-                                Recurrence = m.Recurrence,
+                                RecurrencePattern = pattern,
+                                Interval = m.Interval,
                                 Participants = m.Participants,
                                 CreatedByUserId = m.CreatedByUserId,
-                                CreatedByUser = m.CreatedByUser,
+                                
                                 EndDate = m.EndDate
                             });
                         }
